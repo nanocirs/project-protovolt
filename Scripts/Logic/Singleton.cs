@@ -8,8 +8,8 @@ public partial class Singleton<T> : Node
 	public static T instance => (T)_instance;
 	
 	public sealed override void _Ready() {
-	    _instance = this;
-	    _SingletonReady();
+		_instance = this;
+		_SingletonReady();
 	}
 
 	public virtual void _SingletonReady() { }

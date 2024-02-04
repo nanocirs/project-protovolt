@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://cx20o4y16sfxy"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ilp2v"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bis4i"]
+
+[node name="MainMenu" type="Node"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -33.531
+offset_top = 53.76
+offset_right = 33.5315
+offset_bottom = 84.76
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 60
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_bis4i")
+text = "Coches chocones"
+expand_to_text_length = true
