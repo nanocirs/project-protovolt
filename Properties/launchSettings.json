@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "proyecto-uno": {
-      "commandName": "Project",
-      "commandLineArgs": "-e --path \"E:\\dev\\godot\\projects\\in\\proyecto-uno\" \"E:\\dev\\godot\\projects\\in\\proyecto-uno\\Scenes\\EntryScene.tscn\"\r\n",
-      "workingDirectory": "E:\\dev\\godot\\projects\\in\\proyecto-uno"
-    }
-  }
-}
