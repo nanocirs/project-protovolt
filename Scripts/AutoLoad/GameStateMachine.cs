@@ -17,6 +17,7 @@ public partial class GameStateMachine : Singleton<GameStateMachine> {
 
 		_entryScene = entryScene;
 
+		GD.
 		switch (startingState) {
 			case GameState.MainMenu:
 				LoadScene("MainMenu.tscn");
