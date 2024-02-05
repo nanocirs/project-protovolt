@@ -61,7 +61,7 @@ public partial class LobbyMenu : CanvasLayer {
 
     private void OnServerClosed() {
 
-        GetParent<MainMenu>().SetMenuPage(MainMenu.MenuPage.Main);
+        GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Main);
 
         if (isSceneValid) {
 

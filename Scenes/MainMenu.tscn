@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://cx20o4y16sfxy"]
+[gd_scene load_steps=7 format=3 uid="uid://cx20o4y16sfxy"]
 
 [ext_resource type="Script" path="res://Scripts/Menu/MainMenu.cs" id="1_5yqcj"]
+[ext_resource type="Script" path="res://Scripts/Menu/MainMenuManager.cs" id="1_b2b8l"]
 [ext_resource type="Script" path="res://Scripts/Menu/LobbyMenu.cs" id="2_a2ir8"]
 [ext_resource type="PackedScene" uid="uid://cyn4fo2de0kwx" path="res://Prefabs/UI/LobbyPlayerRow.tscn" id="3_pfolq"]
 
@@ -9,12 +10,12 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bis4i"]
 
 [node name="MainMenu" type="Node" node_paths=PackedStringArray("canvasMainMenu", "canvasLobby")]
-script = ExtResource("1_5yqcj")
+script = ExtResource("1_b2b8l")
 canvasMainMenu = NodePath("Main")
 canvasLobby = NodePath("Lobby")
 
 [node name="Main" type="CanvasLayer" parent="."]
-visible = false
+script = ExtResource("1_5yqcj")
 
 [node name="Title" type="LineEdit" parent="Main"]
 anchors_preset = 5
@@ -116,8 +117,8 @@ text = "Play"
 layout_mode = 2
 text = "Disconnect"
 
-[connection signal="pressed" from="Main/VBoxContainer/Play" to="." method="OnPlayPressed"]
-[connection signal="pressed" from="Main/VBoxContainer/Connect" to="." method="OnConnectPressed"]
-[connection signal="pressed" from="Main/VBoxContainer/Host" to="." method="OnHostPressed"]
+[connection signal="pressed" from="Main/VBoxContainer/Play" to="Main" method="OnPlayPressed"]
+[connection signal="pressed" from="Main/VBoxContainer/Connect" to="Main" method="OnConnectPressed"]
+[connection signal="pressed" from="Main/VBoxContainer/Host" to="Main" method="OnHostPressed"]
 [connection signal="pressed" from="Lobby/HBoxContainer/VBoxContainer/Play" to="Lobby" method="OnPlayPressed"]
 [connection signal="pressed" from="Lobby/HBoxContainer/VBoxContainer/Disconnect" to="Lobby" method="OnDisconnectPressed"]
