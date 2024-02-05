@@ -6,4 +6,12 @@ public partial class MainMenu : Node
 		GameStateMachine.instance.LoadScene("Game.tscn");
 	}
 
+	private void OnConnectPressed() {
+        MultiplayerManager.instance.JoinServer();
+	}
+
+	private void OnHostPressed() {
+        MultiplayerManager.instance.CreateServer();
+	}
+
 }

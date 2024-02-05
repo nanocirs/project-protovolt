@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameStateMachine="*res://Scripts/AutoLoad/GameStateMachine.cs"
 InputManager="*res://Scripts/AutoLoad/InputManager.cs"
+MultiplayerManager="*res://Scripts/AutoLoad/MultiplayerManager.cs"
 
 [dotnet]
 

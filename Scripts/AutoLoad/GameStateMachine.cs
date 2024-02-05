@@ -16,7 +16,6 @@ public partial class GameStateMachine : Singleton<GameStateMachine> {
 
 		_entryScene = entryScene;
 
-
 		switch (startingState) {
 			case GameState.Intro:
 			case GameState.MainMenu:
@@ -24,7 +23,6 @@ public partial class GameStateMachine : Singleton<GameStateMachine> {
 				break;
 			case GameState.Loading:
 			case GameState.Playing:
-
 			default:
 				LoadScene("MainMenu.tscn");
 				break;

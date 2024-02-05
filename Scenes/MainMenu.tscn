@@ -9,6 +9,8 @@
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_5yqcj")
 
+[node name="Lobby" type="Node" parent="."]
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Title" type="LineEdit" parent="CanvasLayer"]
@@ -41,8 +43,18 @@ offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Button" type="Button" parent="CanvasLayer/VBoxContainer"]
+[node name="Play" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
 text = "Play"
 
-[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button" to="." method="OnPlayPressed"]
+[node name="Connect" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Connect"
+
+[node name="Host" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Host"
+
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Play" to="." method="OnPlayPressed"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Connect" to="." method="OnConnectPressed"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Host" to="." method="OnHostPressed"]
