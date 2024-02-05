@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Data.Common;
 using Godot;
 
 public partial class LobbyMenu : CanvasLayer {
@@ -7,10 +6,13 @@ public partial class LobbyMenu : CanvasLayer {
     [Export] private VBoxContainer playersContainer = null;
     [Export] private PackedScene playerNameRowScene = null;
     [Export] private Button playButton = null;
+    
+    // @TODO: Segregate to another class (LobbySettings?)
+    private int minimumPlayers = 2;
+    //
 
     private Dictionary<int, LineEdit> playerRows = new Dictionary<int, LineEdit>();
 
-    private bool isServer = false;
     private bool isSceneValid = true;
 
     public override void _Ready() {
@@ -31,6 +33,7 @@ public partial class LobbyMenu : CanvasLayer {
         }
 
         if (playButton != null) {
+            playButton.Disabled = true;
             playButton.Hide();
         }
         else {
@@ -41,6 +44,8 @@ public partial class LobbyMenu : CanvasLayer {
     }
 
     private void OnPlayPressed() {
+
+        GD.Print(MultiplayerManager.instance.GetTotalPlayers());
         // @TODO: Check if enough players joined to start the game.
         // @TODO: Make all clients load the map.
         GD.Print("PLAY");
@@ -72,20 +77,37 @@ public partial class LobbyMenu : CanvasLayer {
 
             playButton.Hide();
 
+            if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
+                playButton.Disabled = false;
+            }
+            else {
+                playButton.Disabled = true;
+            }
+
         }
     }
 
     private void OnPlayerConnected(int id, string name) {
         
         if (isSceneValid) {
-
+            GD.Print("player connected");
             LineEdit playerName = playerNameRowScene.Instantiate<LineEdit>();
             playerName.Text = name;
-            playersContainer.AddChild(playerName);
 
-            playerRows.Add(id, playerName);
+            playersContainer.AddChild(playerName);
+            playerRows[id] = playerName;
+
+
+            if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
+                playButton.Disabled = false;
+            }
+            else {
+                playButton.Disabled = true;
+            }
 
         }
+
+
     }
 
     private void OnPlayerDisconnected(int id, string name) {
@@ -94,6 +116,16 @@ public partial class LobbyMenu : CanvasLayer {
 
             playerRows[id].QueueFree();
             playerRows.Remove(id);
+            
+            GD.Print("KPLS" + MultiplayerManager.instance.GetTotalPlayers());
+
+
+            if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
+                playButton.Disabled = false;
+            }
+            else {
+                playButton.Disabled = true;
+            }
 
         }
 

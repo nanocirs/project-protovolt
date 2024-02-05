@@ -60,6 +60,7 @@ layout_mode = 2
 text = "Host"
 
 [node name="Lobby" type="CanvasLayer" parent="." node_paths=PackedStringArray("playersContainer", "playButton")]
+visible = false
 script = ExtResource("2_a2ir8")
 playersContainer = NodePath("HBoxContainer/PlayersList/PlayersContainer")
 playerNameRowScene = ExtResource("3_pfolq")

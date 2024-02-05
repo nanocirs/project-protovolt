@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using Godot;
 
 public partial class MultiplayerManager : Singleton<MultiplayerManager> {
@@ -74,15 +72,18 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private void PeerDisconnected(long id) {
 
-        EmitSignal(SignalName.OnPlayerDisconnected, (int)id, players[(int)id]);
+        string peerName = players[(int)id];
 
         if (players[(int)id] != null) {
             players.Remove((int)id);
         }
 
+        EmitSignal(SignalName.OnPlayerDisconnected, (int)id, peerName);
+        
         if (Multiplayer.IsServer()) {
             GD.Print("Player with ID " + id + " disconnected from Server. Current players: " + players.Count);
         }
+
     }
 
     private void ConnectedToServer() {
@@ -104,16 +105,24 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private void ServerDisconnected() {
 
-        GD.Print("Server closed");
-
+        players.Clear();
         EmitSignal(SignalName.OnServerClosed);
+
+        GD.Print("Disconnected from Server");
         
     }
 
     public void DisconnectFromServer() {
 
+        int playerId = Multiplayer.GetUniqueId();
+        string peerName = players[playerId];
+
+        GD.PrintErr(players.Count);
+
         Multiplayer.MultiplayerPeer.Close();
   
+        EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
+
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -130,4 +139,9 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
+    public int GetTotalPlayers() {
+        
+        return players.Count;
+
+    }
 }
