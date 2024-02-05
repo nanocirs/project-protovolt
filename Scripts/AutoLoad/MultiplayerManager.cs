@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -73,11 +74,38 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
             return;
 
         }
+
         Multiplayer.MultiplayerPeer = peer;
 
-        if (Multiplayer.IsServer()) {
-            GD.Print("IM SERVER");
+    }
+
+    public void DisconnectFromServer() {
+
+        int playerId = Multiplayer.GetUniqueId();
+
+        if (players.Count() > 0) {
+            
+            string peerName = players[playerId];
+            Multiplayer.MultiplayerPeer.Close();
+            EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
+
         }
+
+    }
+
+    [Rpc(CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void LoadMap(string mapFile) {
+
+        string mapPath = "Maps/" + mapFile;
+
+        GameStateMachine.instance.LoadScene(mapPath);
+
+    }
+
+    public int GetTotalPlayers() {
+        
+        return players.Count;
+
     }
 
     private void PeerConnected(long id) {
@@ -123,20 +151,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         
     }
 
-    public void DisconnectFromServer() {
-
-        int playerId = Multiplayer.GetUniqueId();
-
-        if (players.Count() > 0) {
-            
-            string peerName = players[playerId];
-            Multiplayer.MultiplayerPeer.Close();
-            EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
-
-        }
-
-    }
-
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void RegisterPlayer(string newPlayerName) {
 
@@ -147,9 +161,4 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-    public int GetTotalPlayers() {
-        
-        return players.Count;
-
-    }
 }

@@ -8,7 +8,8 @@ public partial class LobbyMenu : CanvasLayer {
     [Export] private Button playButton = null;
     
     // @TODO: Segregate to another class (LobbySettings?)
-    private int minimumPlayers = 2;
+    private int minimumPlayers = 1;
+    private string mapFile = "Map1.tscn";
     //
 
     private Dictionary<int, LineEdit> playerRows = new Dictionary<int, LineEdit>();
@@ -46,8 +47,11 @@ public partial class LobbyMenu : CanvasLayer {
     }
 
     private void OnPlayPressed() {
-        // @TODO: Make all clients load the map.
-        GD.Print("PLAY");
+
+        MultiplayerManager.instance.Rpc("LoadMap", mapFile);
+        
+        GD.Print("Game starting...");
+
     }
 
     private void OnDisconnectPressed() {
