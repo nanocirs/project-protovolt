@@ -21,6 +21,8 @@ public partial class LobbyMenu : CanvasLayer {
         MultiplayerManager.instance.OnServerClosed += OnServerClosed;
         MultiplayerManager.instance.OnPlayerConnected += OnPlayerConnected;
         MultiplayerManager.instance.OnPlayerDisconnected += OnPlayerDisconnected;
+        MultiplayerManager.instance.OnServerCreateError += OnLobbyError;
+        MultiplayerManager.instance.OnPlayerConnectError += OnLobbyError;
 
         if (playerNameRowScene == null) {
             isSceneValid = false;
@@ -44,15 +46,13 @@ public partial class LobbyMenu : CanvasLayer {
     }
 
     private void OnPlayPressed() {
-
-        GD.Print(MultiplayerManager.instance.GetTotalPlayers());
-        // @TODO: Check if enough players joined to start the game.
         // @TODO: Make all clients load the map.
         GD.Print("PLAY");
     }
 
     private void OnDisconnectPressed() {
         MultiplayerManager.instance.DisconnectFromServer();
+        GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Main);
     }
 
 
@@ -90,13 +90,12 @@ public partial class LobbyMenu : CanvasLayer {
     private void OnPlayerConnected(int id, string name) {
         
         if (isSceneValid) {
-            GD.Print("player connected");
+
             LineEdit playerName = playerNameRowScene.Instantiate<LineEdit>();
             playerName.Text = name;
 
             playersContainer.AddChild(playerName);
             playerRows[id] = playerName;
-
 
             if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
                 playButton.Disabled = false;
@@ -116,9 +115,6 @@ public partial class LobbyMenu : CanvasLayer {
 
             playerRows[id].QueueFree();
             playerRows.Remove(id);
-            
-            GD.Print("KPLS" + MultiplayerManager.instance.GetTotalPlayers());
-
 
             if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
                 playButton.Disabled = false;
@@ -129,6 +125,10 @@ public partial class LobbyMenu : CanvasLayer {
 
         }
 
+    }
+
+    private void OnLobbyError() {
+        GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Main);
     }
 
 }

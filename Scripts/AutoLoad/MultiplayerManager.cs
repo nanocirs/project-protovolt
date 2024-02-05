@@ -1,12 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     [Signal] public delegate void OnServerCreatedEventHandler();
     [Signal] public delegate void OnServerClosedEventHandler();
+    [Signal] public delegate void OnServerCreateErrorEventHandler();
     [Signal] public delegate void OnPlayerConnectedEventHandler(int id, string playerName);
     [Signal] public delegate void OnPlayerDisconnectedEventHandler(int id, string playerName);
+    [Signal] public delegate void OnPlayerConnectErrorEventHandler();
 
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
@@ -33,7 +36,13 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         Error error = peer.CreateServer(PORT, MAX_CONNECTIONS);
 
         if (error != Error.Ok) {
+
+            EmitSignal(SignalName.OnServerCreateError);
+
             GD.PrintErr(error);
+
+            return;
+
         }
 
         Multiplayer.MultiplayerPeer = peer;
@@ -42,10 +51,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         EmitSignal(SignalName.OnServerCreated);
         EmitSignal(SignalName.OnPlayerConnected, 1, players[1]);
-
-        if (Multiplayer.IsServer()) {
-            GD.Print("Player with ID 1 connected to Server");
-        }
+        
     }
 
     public void JoinServer(string address = "") {
@@ -59,11 +65,19 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         Error error = peer.CreateClient(address, PORT);
 
         if (error != Error.Ok) {
-            GD.PrintErr(error);
-        }
 
+            EmitSignal(SignalName.OnPlayerConnectError);
+
+            GD.PrintErr(error);
+
+            return;
+
+        }
         Multiplayer.MultiplayerPeer = peer;
 
+        if (Multiplayer.IsServer()) {
+            GD.Print("IM SERVER");
+        }
     }
 
     private void PeerConnected(long id) {
@@ -79,10 +93,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         }
 
         EmitSignal(SignalName.OnPlayerDisconnected, (int)id, peerName);
-        
-        if (Multiplayer.IsServer()) {
-            GD.Print("Player with ID " + id + " disconnected from Server. Current players: " + players.Count);
-        }
 
     }
 
@@ -106,6 +116,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private void ServerDisconnected() {
 
         players.Clear();
+
         EmitSignal(SignalName.OnServerClosed);
 
         GD.Print("Disconnected from Server");
@@ -115,13 +126,14 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     public void DisconnectFromServer() {
 
         int playerId = Multiplayer.GetUniqueId();
-        string peerName = players[playerId];
 
-        GD.PrintErr(players.Count);
+        if (players.Count() > 0) {
+            
+            string peerName = players[playerId];
+            Multiplayer.MultiplayerPeer.Close();
+            EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
 
-        Multiplayer.MultiplayerPeer.Close();
-  
-        EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
+        }
 
     }
 
@@ -132,10 +144,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         players[playerId] = newPlayerName;
 
         EmitSignal(SignalName.OnPlayerConnected, playerId, newPlayerName);
-
-        if (Multiplayer.IsServer()) {
-            GD.Print("Player with ID " + playerId + " connected to Server. Current players: " + players.Count);
-        }
 
     }
 
