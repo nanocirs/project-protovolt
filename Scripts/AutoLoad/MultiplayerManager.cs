@@ -1,7 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using Godot;
 
 public partial class MultiplayerManager : Singleton<MultiplayerManager> {
+
+    [Signal] public delegate void OnServerCreatedEventHandler();
+    [Signal] public delegate void OnServerClosedEventHandler();
+    [Signal] public delegate void OnPlayerConnectedEventHandler(int id, string playerName);
+    [Signal] public delegate void OnPlayerDisconnectedEventHandler(int id, string playerName);
 
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
@@ -17,6 +24,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         Multiplayer.PeerDisconnected += PeerDisconnected;
         Multiplayer.ConnectedToServer += ConnectedToServer;
         Multiplayer.ConnectionFailed += ConnectionFailed;
+        Multiplayer.ServerDisconnected += ServerDisconnected;
 
     }
 
@@ -32,8 +40,14 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         Multiplayer.MultiplayerPeer = peer;
 
-        players[1] = "Server";
-        
+        players[1] = playerName;
+
+        EmitSignal(SignalName.OnServerCreated);
+        EmitSignal(SignalName.OnPlayerConnected, 1, players[1]);
+
+        if (Multiplayer.IsServer()) {
+            GD.Print("Player with ID 1 connected to Server");
+        }
     }
 
     public void JoinServer(string address = "") {
@@ -55,19 +69,65 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     }
 
     private void PeerConnected(long id) {
-        GD.Print("Player with ID " + id + " connected to Server");
+        RpcId(id, "RegisterPlayer", playerName);
     }
 
     private void PeerDisconnected(long id) {
-        GD.Print("Player with ID " + id + " disconnected from Server");
+
+        EmitSignal(SignalName.OnPlayerDisconnected, (int)id, players[(int)id]);
+
+        if (players[(int)id] != null) {
+            players.Remove((int)id);
+        }
+
+        if (Multiplayer.IsServer()) {
+            GD.Print("Player with ID " + id + " disconnected from Server. Current players: " + players.Count);
+        }
     }
 
     private void ConnectedToServer() {
-        GD.Print("Connected to Server");
+
+        int playerId = Multiplayer.GetUniqueId();
+        players[playerId] = playerName;
+
+        EmitSignal(SignalName.OnPlayerConnected, playerId, playerName);
+
     }
 
     private void ConnectionFailed() {
+
+        Multiplayer.MultiplayerPeer = null;
+
         GD.Print("Failed to connect to Server");
+        
+    }
+
+    private void ServerDisconnected() {
+
+        GD.Print("Server closed");
+
+        EmitSignal(SignalName.OnServerClosed);
+        
+    }
+
+    public void DisconnectFromServer() {
+
+        Multiplayer.MultiplayerPeer.Close();
+  
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RegisterPlayer(string newPlayerName) {
+
+        int playerId = Multiplayer.GetRemoteSenderId();
+        players[playerId] = newPlayerName;
+
+        EmitSignal(SignalName.OnPlayerConnected, playerId, newPlayerName);
+
+        if (Multiplayer.IsServer()) {
+            GD.Print("Player with ID " + playerId + " connected to Server. Current players: " + players.Count);
+        }
+
     }
 
 }
