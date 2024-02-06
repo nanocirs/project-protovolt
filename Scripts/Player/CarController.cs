@@ -3,8 +3,6 @@ using Godot;
 
 public partial class CarController : VehicleBody3D
 {
-    [Export] LineEdit debugText = null;
-
     [ExportGroup("Vehicle settings")]
     [Export] float steerLimit = 30.0f;
     [Export] float maxRpm = 500.0f;

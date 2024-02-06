@@ -75,6 +75,14 @@ public partial class LevelManager : Node {
 
         }
 
+        foreach (var tuple in carTransforms) {
+            
+            if (tuple.Key != myCar.id) {
+                cars[tuple.Key].GlobalTransform = cars[tuple.Key].GlobalTransform.InterpolateWith(tuple.Value, 5.0f * (float)delta);
+            }
+
+        }
+
     }
 
     private void OnPlayerLoaded(int playerId, bool isLocal) {
@@ -116,14 +124,6 @@ public partial class LevelManager : Node {
         if (playerId != myCar.id) {
             
             carTransforms[playerId] = globalTransform;
-
-            foreach (var transform in carTransforms) {
-                
-                if (transform.Key != myCar.id) {
-                    cars[transform.Key].GlobalTransform = transform.Value;
-                }
-
-            }
 
         }
 
