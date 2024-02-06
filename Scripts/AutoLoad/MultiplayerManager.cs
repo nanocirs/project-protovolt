@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -14,11 +13,12 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
-    private const int MAX_CONNECTIONS = 20;
+    private const int MAX_CONNECTIONS = 12;
 
     private Dictionary<int, string> players = new Dictionary<int, string>();
 
-    private string playerName = "QuePasaShavales";
+    // @TODO: This doesn't belong here.
+    public string playerName = "QuePasaShavales";
 
     public override void _SingletonReady() {
 
