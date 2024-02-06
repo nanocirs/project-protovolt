@@ -18,6 +18,7 @@ public partial class CarController : VehicleBody3D
     private bool isTurnLeftPressed = false;
     private bool isTurnRightPressed = false;
 
+    private bool isLocalCar = false;
     private bool isValidCar = true;
 
     public override void _Ready() {
@@ -43,15 +44,22 @@ public partial class CarController : VehicleBody3D
             return;
         }
 
-        Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
-        
-        float acceleration = Input.GetAxis("down", "up");
+        if (isLocalCar) {
 
-        float rpm = wheelBackLeft.GetRpm();
-        wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+            Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
+            
+            float acceleration = Input.GetAxis("down", "up");
 
-        rpm = wheelBackRight.GetRpm();
-        wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+            float rpm = wheelBackLeft.GetRpm();
+            wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
 
+            rpm = wheelBackRight.GetRpm();
+            wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+
+        }
+    }
+
+    public void SetLocalCar(bool isLocal) {
+        isLocalCar = isLocal;
     }
 }

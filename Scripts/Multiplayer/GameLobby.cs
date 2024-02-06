@@ -8,7 +8,7 @@ public partial class GameLobby : Node {
         public string name;
     }
 
-    [Signal] public delegate void OnPlayerLoadedEventHandler(int playerId);
+    [Signal] public delegate void OnPlayerLoadedEventHandler(int playerId, bool isLocal);
 
     private Dictionary<int, LobbyPlayer> players = new Dictionary<int, LobbyPlayer>();
 
@@ -83,6 +83,15 @@ public partial class GameLobby : Node {
     }
 
     private void OnPlayerLoadedEmit(int playerId) {
-        EmitSignal(SignalName.OnPlayerLoaded, playerId);
+        
+        if (myPlayerId == playerId) {
+
+            EmitSignal(SignalName.OnPlayerLoaded, playerId, true);
+        }
+        else {
+
+            EmitSignal(SignalName.OnPlayerLoaded, playerId, false);
+
+        }
     }
 }

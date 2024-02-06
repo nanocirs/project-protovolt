@@ -55,12 +55,14 @@ public partial class LevelManager : Node {
 
     }
 
-    private void OnPlayerLoaded(int playerId) {
+    private void OnPlayerLoaded(int playerId, bool isLocal) {
 
         if (isValidLevel) {
 
-            VehicleBody3D car = carScene.Instantiate<VehicleBody3D>();
+            CarController car = carScene.Instantiate<CarController>();
             car.GlobalTransform = spawnPoints[playerId];
+            car.SetLocalCar(isLocal);
+            
             playersNode.AddChild(car);
 
         }
