@@ -1,4 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://dbw6jk3rg54of"]
+[gd_scene load_steps=9 format=3 uid="uid://dbw6jk3rg54of"]
+
+[ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="1_gmxs1"]
+[ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="1_u1ruq"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_vwt13"]
 sky_top_color = Color(0, 0.701961, 1, 1)
@@ -15,10 +18,14 @@ tonemap_mode = 2
 glow_enabled = true
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_bcaba"]
-size = Vector2(200, 200)
+size = Vector2(500, 500)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ynr4b"]
+albedo_texture = ExtResource("1_gmxs1")
+uv1_scale = Vector3(80, 80, 80)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dmdgy"]
-size = Vector3(200, 1, 200)
+size = Vector3(500, 1, 500)
 
 [node name="Game" type="Node"]
 
@@ -31,14 +38,19 @@ environment = SubResource("Environment_7o2iv")
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Camera3D" type="Camera3D" parent="World"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62765, 1.66157)
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="World"]
 mesh = SubResource("PlaneMesh_bcaba")
+surface_material_override/0 = SubResource("StandardMaterial3D_ynr4b")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="World/MeshInstance3D"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/MeshInstance3D/StaticBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_dmdgy")
+
+[node name="SpawnPoints" type="Node" parent="."]
+
+[node name="Players" type="Node" parent="."]
+
+[node name="Car" parent="." instance=ExtResource("1_u1ruq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.310768, 2.04559, 0.104222)
