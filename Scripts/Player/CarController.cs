@@ -1,7 +1,10 @@
+using System.Dynamic;
 using Godot;
 
 public partial class CarController : VehicleBody3D
 {
+    [Export] LineEdit debugText = null;
+
     [ExportGroup("Vehicle settings")]
     [Export] float steerLimit = 30.0f;
     [Export] float maxRpm = 500.0f;
@@ -16,20 +19,12 @@ public partial class CarController : VehicleBody3D
     [ExportGroup("Camera")]
     [Export] Camera3D camera = null;
 
-    private bool isAcceleratePressed = false;
-    private bool isDeceleratePressed = false;
-    private bool isTurnLeftPressed = false;
-    private bool isTurnRightPressed = false;
+    public int id { get; private set; } = -1;
 
     private bool isLocalCar = false;
     private bool isValidCar = true;
 
     public override void _Ready() {
-
-        InputManager.instance.OnUpInput += (bool isPressed) => isAcceleratePressed = isPressed;
-        InputManager.instance.OnDownInput += (bool isPressed) => isDeceleratePressed = isPressed;
-        InputManager.instance.OnLeftInput += (bool isPressed) => isTurnLeftPressed = isPressed;
-        InputManager.instance.OnRightInput += (bool isPressed) => isTurnRightPressed = isPressed;
 
         camera.Current = false;
 
@@ -50,7 +45,6 @@ public partial class CarController : VehicleBody3D
         }
 
         if (isLocalCar) {
-
             Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
             
             float acceleration = Input.GetAxis("down", "up");
@@ -62,6 +56,7 @@ public partial class CarController : VehicleBody3D
             wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
 
         }
+
     }
 
     public void SetLocalCar(bool isLocal) {
@@ -69,4 +64,9 @@ public partial class CarController : VehicleBody3D
         camera.Current = isLocal;
 
     }
+
+    public void SetCarId(int carId) {
+        id = carId;
+    }
+
 }

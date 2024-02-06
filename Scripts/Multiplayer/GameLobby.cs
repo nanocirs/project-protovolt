@@ -3,7 +3,7 @@ using Godot;
 
 public partial class GameLobby : Node {
 
-    private partial class LobbyPlayer : Node {      // Los structs no están soportados en Godot.Collections
+    private partial class LobbyPlayer : Node {
         public int id;
         public string name;
     }
