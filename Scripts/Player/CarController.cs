@@ -13,6 +13,9 @@ public partial class CarController : VehicleBody3D
     [Export] VehicleWheel3D wheelFrontLeft = null;
     [Export] VehicleWheel3D wheelFrontRight = null;
 
+    [ExportGroup("Camera")]
+    [Export] Camera3D camera = null;
+
     private bool isAcceleratePressed = false;
     private bool isDeceleratePressed = false;
     private bool isTurnLeftPressed = false;
@@ -27,6 +30,8 @@ public partial class CarController : VehicleBody3D
         InputManager.instance.OnDownInput += (bool isPressed) => isDeceleratePressed = isPressed;
         InputManager.instance.OnLeftInput += (bool isPressed) => isTurnLeftPressed = isPressed;
         InputManager.instance.OnRightInput += (bool isPressed) => isTurnRightPressed = isPressed;
+
+        camera.Current = false;
 
         if (wheelBackLeft == null || wheelBackRight == null || wheelFrontLeft == null || wheelFrontRight == null) {
 
@@ -61,5 +66,7 @@ public partial class CarController : VehicleBody3D
 
     public void SetLocalCar(bool isLocal) {
         isLocalCar = isLocal;
+        camera.Current = isLocal;
+
     }
 }

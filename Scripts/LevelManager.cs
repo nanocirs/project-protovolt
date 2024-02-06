@@ -61,9 +61,9 @@ public partial class LevelManager : Node {
 
             CarController car = carScene.Instantiate<CarController>();
             car.GlobalTransform = spawnPoints[playerId];
-            car.SetLocalCar(isLocal);
             
             playersNode.AddChild(car);
+            car.SetLocalCar(isLocal);
 
         }
     }

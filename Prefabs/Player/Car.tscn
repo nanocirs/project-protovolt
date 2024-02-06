@@ -13,7 +13,7 @@ size = Vector3(2, 0.75, 4)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uuybc"]
 albedo_color = Color(0, 0, 0, 1)
 
-[node name="Car" type="VehicleBody3D" node_paths=PackedStringArray("wheelBackLeft", "wheelBackRight", "wheelFrontLeft", "wheelFrontRight")]
+[node name="Car" type="VehicleBody3D" node_paths=PackedStringArray("wheelBackLeft", "wheelBackRight", "wheelFrontLeft", "wheelFrontRight", "camera")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0339556, 1.20721, 0.0548701)
 mass = 300.0
 center_of_mass_mode = 1
@@ -26,6 +26,7 @@ wheelBackLeft = NodePath("WheelBL")
 wheelBackRight = NodePath("WheelBR")
 wheelFrontLeft = NodePath("WheelFL")
 wheelFrontRight = NodePath("WheelFR")
+camera = NodePath("Camera3D")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0926116, 0)

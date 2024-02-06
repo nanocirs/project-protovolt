@@ -71,8 +71,10 @@ public partial class GameLobby : Node {
         
         myPlayerId = lobbyId;
 
+        CallDeferred("OnPlayerLoadedEmit", 0);
+
         Rpc("NetEmitPlayerLoaded", myPlayerId);
-    
+
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
