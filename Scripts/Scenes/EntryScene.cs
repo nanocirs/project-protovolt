@@ -6,5 +6,5 @@ public partial class EntryScene : Node {
 
 		GameStateMachine.instance.Start(this, GameState.MainMenu);
 
-	}
+	}    
 }

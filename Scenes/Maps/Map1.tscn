@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://dbw6jk3rg54of"]
+[gd_scene load_steps=11 format=3 uid="uid://dbw6jk3rg54of"]
 
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="1_gmxs1"]
 [ext_resource type="Script" path="res://Scripts/LevelManager.cs" id="1_lothq"]
 [ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="1_u1ruq"]
+[ext_resource type="PackedScene" uid="uid://6vbph14vt13l" path="res://Scenes/MapMechanics/SpawnPoint.tscn" id="4_qg4ms"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_vwt13"]
 sky_top_color = Color(0, 0.701961, 1, 1)
@@ -53,40 +54,40 @@ shape = SubResource("BoxShape3D_dmdgy")
 
 [node name="SpawnPoints" type="Node" parent="."]
 
-[node name="SpawnPoint0" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint0" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
 
-[node name="SpawnPoint1" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint1" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -5)
 
-[node name="SpawnPoint2" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint2" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -10)
 
-[node name="SpawnPoint3" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint3" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -15)
 
-[node name="SpawnPoint4" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint4" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -20)
 
-[node name="SpawnPoint5" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint5" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -25)
 
-[node name="SpawnPoint6" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint6" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -30)
 
-[node name="SpawnPoint7" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint7" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -35)
 
-[node name="SpawnPoint8" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint8" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -40)
 
-[node name="SpawnPoint9" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint9" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -45)
 
-[node name="SpawnPoint10" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint10" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -50)
 
-[node name="SpawnPoint11" type="Node3D" parent="SpawnPoints"]
+[node name="SpawnPoint11" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -55)
 
 [node name="Players" type="Node" parent="."]
