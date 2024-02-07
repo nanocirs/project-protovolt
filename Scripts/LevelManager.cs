@@ -5,25 +5,20 @@ public partial class LevelManager : Node {
 
     [Export] private PackedScene carScene = null;
 
-    private GameLobby lobby;
+    private Dictionary<int, CarController> cars = new Dictionary<int, CarController>();
+    private List<Transform3D> spawnPoints = new List<Transform3D>();
+
     private Node playersNode;
     private Node spawnPointsNode;
 
     private CarController myCar = null;
 
-    private List<Transform3D> spawnPoints = new List<Transform3D>();
-    private Dictionary<int, Transform3D> carTransforms = new Dictionary<int, Transform3D>();
-    private Dictionary<int, CarController> cars = new Dictionary<int, CarController>();
-
     private bool isValidLevel = true;
 
     public override void _Ready() {
 
-        lobby = GetNodeOrNull<GameLobby>("Lobby");
         playersNode = GetNodeOrNull("Players");
         spawnPointsNode = GetNodeOrNull("SpawnPoints");
-
-        lobby.OnPlayerLoaded += OnPlayerLoaded;
 
         if (spawnPointsNode == null) {
             
@@ -49,11 +44,14 @@ public partial class LevelManager : Node {
 
         }
 
-        if (lobby == null) {
-            
-            isValidLevel = false;
-            GD.PrintErr("Level Scene needs a Node called Lobby.");
+        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
 
+            MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
+            MultiplayerManager.NotifyMapLoaded();
+
+        }
+        else {
+            OnPlayerLoaded(0, 0, true);
         }
 
     }
@@ -64,69 +62,58 @@ public partial class LevelManager : Node {
             return;
         }
 
-        if (Multiplayer.IsServer()) {
+        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
 
-            NetNotifyTransform(myCar.id, myCar.GlobalTransform);
-
-        }
-        else {
-
-            RpcId(1, "NetNotifyTransform", myCar.id, myCar.GlobalTransform);
+            MultiplayerManager.NotifyPlayerTransform(myCar.GlobalTransform, myCar.Steering);
 
         }
 
-        foreach (var tuple in carTransforms) {
+        foreach (var tuple in MultiplayerManager.players) {
+
+            if (cars.ContainsKey(tuple.Value.playerId)) {
             
-            if (tuple.Key != myCar.id) {
-                cars[tuple.Key].GlobalTransform = cars[tuple.Key].GlobalTransform.InterpolateWith(tuple.Value, 5.0f * (float)delta);
+                if (tuple.Value.playerId != myCar.id) {
+
+                    cars[tuple.Value.playerId].GlobalTransform = cars[tuple.Value.playerId].GlobalTransform.InterpolateWith(tuple.Value.carTransform, 13.0f * (float)delta);
+                    cars[tuple.Value.playerId].Steering = tuple.Value.carSteering;
+
+                }
+
             }
 
         }
 
     }
 
-    private void OnPlayerLoaded(int playerId, bool isLocal) {
+    private void OnPlayerLoaded(int peerId, int playerId, bool isLocal) {
 
         if (isValidLevel) {
 
+            if (playerId >= spawnPoints.Count) {
+                GD.PrintErr("Not enough spawnpoints. You need at least " + spawnPoints.Count);
+                return;
+            }
+
             CarController car = carScene.Instantiate<CarController>();
-            car.SetCarId(playerId);  
-            GD.Print(playerId);
             playersNode.AddChild(car);
 
             car.GlobalTransform = spawnPoints[playerId];
+            car.SetCarId(playerId);  
             car.SetLocalCar(isLocal);
 
             if (isLocal) {
                 myCar = car;
             }
 
-            carTransforms[playerId] = car.GlobalTransform;
             cars[playerId] = car;
 
-        }
-    }
+            if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
-    private void NetNotifyTransform(int playerId, Transform3D globalTransform) {
+                MultiplayerManager.UpdateCarState(peerId, car.GlobalTransform, car.Steering);
 
-        Rpc("NetUpdateTransforms", playerId, globalTransform);        
-
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
-    private void NetUpdateTransforms(int playerId, Transform3D globalTransform) {
-        
-        if (myCar == null) {
-            return;
-        }
-
-        if (playerId != myCar.id) {
-            
-            carTransforms[playerId] = globalTransform;
+            }
 
         }
-
     }
 
 }

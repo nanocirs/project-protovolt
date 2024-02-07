@@ -10,7 +10,7 @@ public partial class MainMenu : CanvasLayer {
         
         GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Lobby);
 
-        MultiplayerManager.instance.JoinServer();
+        MultiplayerManager.JoinServer();
 
 	}
 
@@ -18,7 +18,7 @@ public partial class MainMenu : CanvasLayer {
 
         GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Lobby);
 
-        MultiplayerManager.instance.CreateServer();
+        MultiplayerManager.CreateServer();
 
 	}
 

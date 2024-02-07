@@ -4,6 +4,7 @@ using Godot;
 
 public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
+    // Main menu lobby signals
     [Signal] public delegate void OnServerCreatedEventHandler();
     [Signal] public delegate void OnServerClosedEventHandler();
     [Signal] public delegate void OnServerCreateErrorEventHandler();
@@ -11,11 +12,31 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnPlayerDisconnectedEventHandler(int id, string playerName);
     [Signal] public delegate void OnPlayerConnectErrorEventHandler();
 
+    // Game lobby signals
+    [Signal] public delegate void OnPlayerLoadedEventHandler(int peerId, int playerId, bool isLocal);
+
+    public enum ConnectionStatus {
+        Disconnected = 0,
+        Connected = 1,
+    }
+
+    public class PlayerData {
+        public string playerName;
+        public int playerId;
+        public Transform3D carTransform;
+        public float carSteering;
+    }
+
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
     private const int MAX_CONNECTIONS = 12;
 
-    private Dictionary<int, string> players = new Dictionary<int, string>();
+    public static ConnectionStatus connectionStatus { get; private set; } = ConnectionStatus.Disconnected;
+
+    public static Dictionary<int, PlayerData> players = new Dictionary<int, PlayerData>();
+    public static int localPlayerId = -1;
+
+    private static int playerIterator = 0;
 
     // @TODO: This doesn't belong here.
     public string playerName = "QuePasaShavales";
@@ -30,32 +51,37 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-    public void CreateServer() {
+#region MAIN_MENU_LOBBY
+
+    public static void CreateServer() {
 
         ENetMultiplayerPeer peer = new ENetMultiplayerPeer();
-        
+
         Error error = peer.CreateServer(PORT, MAX_CONNECTIONS);
 
         if (error != Error.Ok) {
 
-            EmitSignal(SignalName.OnServerCreateError);
+            instance.EmitSignal(SignalName.OnServerCreateError);
 
             GD.PrintErr(error);
 
             return;
 
         }
+        instance.Multiplayer.MultiplayerPeer = peer;
 
-        Multiplayer.MultiplayerPeer = peer;
+        connectionStatus = ConnectionStatus.Connected;
 
-        players[1] = playerName;
+        PlayerData newPlayer = new PlayerData();
+        newPlayer.playerName = instance.playerName;
+        players[1] = newPlayer;
 
-        EmitSignal(SignalName.OnServerCreated);
-        EmitSignal(SignalName.OnPlayerConnected, 1, players[1]);
+        instance.EmitSignal(SignalName.OnServerCreated);
+        instance.EmitSignal(SignalName.OnPlayerConnected, 1, players[1].playerName);
         
     }
 
-    public void JoinServer(string address = "") {
+    public static void JoinServer(string address = "") {
         
         if (address == "") {
             address = DEFAULT_IP;
@@ -67,7 +93,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         if (error != Error.Ok) {
 
-            EmitSignal(SignalName.OnPlayerConnectError);
+            instance.EmitSignal(SignalName.OnPlayerConnectError);
 
             GD.PrintErr(error);
 
@@ -75,28 +101,35 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         }
 
-        Multiplayer.MultiplayerPeer = peer;
+        instance.Multiplayer.MultiplayerPeer = peer;
 
     }
 
-    public void DisconnectFromServer() {
+    public static void DisconnectFromServer() {
 
-        int playerId = Multiplayer.GetUniqueId();
+        int playerId = instance.Multiplayer.GetUniqueId();
 
         if (players.Count() > 0) {
             
-            string peerName = players[playerId];
-            Multiplayer.MultiplayerPeer.Close();
-            EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
+            string peerName = players[playerId].playerName;
+            instance.Multiplayer.MultiplayerPeer.Close();
+
+            instance.EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
 
         }
 
     }
 
-    [Rpc(CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void LoadMap(string mapFile) {
+    public static void LoadMap(string mapFile) {
 
         string mapPath = "Maps/" + mapFile;
+
+        instance.Rpc("NotifyLoadMap", mapPath);
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyLoadMap(string mapPath) {
 
         GameStateMachine.instance.LoadScene(mapPath);
 
@@ -114,7 +147,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private void PeerDisconnected(long id) {
 
-        string peerName = players[(int)id];
+        string peerName = players[(int)id].playerName;
 
         if (players[(int)id] != null) {
             players.Remove((int)id);
@@ -127,15 +160,22 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private void ConnectedToServer() {
 
         int playerId = Multiplayer.GetUniqueId();
-        players[playerId] = playerName;
+
+        PlayerData newPlayer = new PlayerData();
+        newPlayer.playerName = playerName;
+        players[playerId] = newPlayer;
 
         EmitSignal(SignalName.OnPlayerConnected, playerId, playerName);
+
+        connectionStatus = ConnectionStatus.Connected;
 
     }
 
     private void ConnectionFailed() {
 
         Multiplayer.MultiplayerPeer = null;
+
+        connectionStatus = ConnectionStatus.Disconnected;
 
         GD.Print("Failed to connect to Server");
         
@@ -147,6 +187,8 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         EmitSignal(SignalName.OnServerClosed);
 
+        connectionStatus = ConnectionStatus.Disconnected;
+
         GD.Print("Disconnected from Server");
         
     }
@@ -155,10 +197,129 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private void RegisterPlayer(string newPlayerName) {
 
         int playerId = Multiplayer.GetRemoteSenderId();
-        players[playerId] = newPlayerName;
+
+        PlayerData newPlayer = new PlayerData();
+        newPlayer.playerName = newPlayerName;
+        players[playerId] = newPlayer;
 
         EmitSignal(SignalName.OnPlayerConnected, playerId, newPlayerName);
 
     }
 
+#endregion
+
+#region GAME_LOBBY
+
+    public static void NotifyMapLoaded() {
+
+        if (instance.Multiplayer.IsServer()) {
+    
+            localPlayerId = playerIterator++;
+
+            players[1].playerId = 0;
+
+            instance.CallDeferred("OnPlayerLoadedEmit", 1, 0);
+
+        }
+        else {
+            instance.RpcId(1, "NotifyPlayerLoaded");
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyPlayerLoaded() {
+
+        int clientPlayerId = playerIterator++;
+
+        players[Multiplayer.GetRemoteSenderId()].playerId = clientPlayerId;
+
+        RpcId(Multiplayer.GetRemoteSenderId(), "SetPlayerId", clientPlayerId);
+
+        foreach (var tuple in players) {
+            Rpc("UpdatePlayerList",tuple.Key, tuple.Value.playerId);
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void SetPlayerId(int playerId) {
+        
+        localPlayerId = playerId;
+
+        CallDeferred("OnPlayerLoadedEmit", 1, 0);   // Let client know server is ready.
+
+        Rpc("EmitPlayerLoaded", localPlayerId);
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void UpdatePlayerList(int peerId, int playerId) {
+
+        players[peerId].playerId = playerId;
+
+    }
+
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void EmitPlayerLoaded(int playerId) {
+
+        CallDeferred("OnPlayerLoadedEmit", Multiplayer.GetRemoteSenderId(), playerId);
+
+    }
+
+    private void OnPlayerLoadedEmit(int peerId, int playerId) {
+        
+        if (localPlayerId == playerId) {
+
+            EmitSignal(SignalName.OnPlayerLoaded, peerId, playerId, true);
+        }
+        else {
+
+            EmitSignal(SignalName.OnPlayerLoaded, peerId, playerId, false);
+
+        }
+    }
+
+#endregion
+
+#region IN_GAME
+
+    public static void NotifyPlayerTransform(Transform3D globalTransform, float steering) {
+       
+        if (instance.Multiplayer.IsServer()) {
+            instance.ServerNotifyTransform(globalTransform, steering);
+        }
+        else {
+            instance.RpcId(1, "NotifyTransform", globalTransform, steering);
+        }
+
+    }
+    
+    public static void UpdateCarState(int peerId, Transform3D carTransform, float steering) {
+        players[peerId].carTransform = carTransform;
+        players[peerId].carSteering = steering;
+    }
+
+    private void ServerNotifyTransform(Transform3D globalTransform, float steering) {
+
+        Rpc("UpdateTransforms", 1, globalTransform, steering);               
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
+    private void NotifyTransform(Transform3D globalTransform, float steering) {
+
+        Rpc("UpdateTransforms", Multiplayer.GetRemoteSenderId(), globalTransform, steering);               
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
+    private void UpdateTransforms(int peerId, Transform3D globalTransform, float steering) {
+
+        players[peerId].carTransform = globalTransform;
+        players[peerId].carSteering = steering;
+        
+    }
+
+#endregion
 }

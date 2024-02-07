@@ -48,14 +48,14 @@ public partial class LobbyMenu : CanvasLayer {
 
     private void OnPlayPressed() {
 
-        MultiplayerManager.instance.Rpc("LoadMap", mapFile);
+        MultiplayerManager.LoadMap(mapFile);
         
         GD.Print("Game starting...");
 
     }
 
     private void OnDisconnectPressed() {
-        MultiplayerManager.instance.DisconnectFromServer();
+        MultiplayerManager.DisconnectFromServer();
         GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Main);
     }
 
