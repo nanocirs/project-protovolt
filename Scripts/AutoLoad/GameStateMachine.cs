@@ -19,14 +19,14 @@ public partial class GameStateMachine : Singleton<GameStateMachine> {
 		switch (startingState) {
 			case GameState.Intro:
 			case GameState.MainMenu:
-				LoadScene("MainMenu.tscn");
+				LoadScene("Menu/MainMenu.tscn");
 				break;
 			case GameState.Loading:
 			case GameState.Playing:
             	LoadScene("Maps/Map1.tscn");
                 break;
 			default:
-				LoadScene("MainMenu.tscn");
+				LoadScene("Menu/MainMenu.tscn");
 				break;
 		}
 	}

@@ -19,6 +19,7 @@ public partial class CarController : VehicleBody3D
 
     public int id { get; private set; } = -1;
 
+    private bool canRace = false;
     private bool isLocalCar = false;
     private bool isValidCar = true;
 
@@ -43,16 +44,20 @@ public partial class CarController : VehicleBody3D
         }
 
         if (isLocalCar) {
+
             Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
             
-            float acceleration = Input.GetAxis("down", "up");
+            if (canRace) {
 
-            float rpm = wheelBackLeft.GetRpm();
-            wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+                float acceleration = Input.GetAxis("down", "up");
 
-            rpm = wheelBackRight.GetRpm();
-            wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+                float rpm = wheelBackLeft.GetRpm();
+                wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
 
+                rpm = wheelBackRight.GetRpm();
+                wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+            
+            }
         }
 
     }
@@ -65,6 +70,10 @@ public partial class CarController : VehicleBody3D
 
     public void SetCarId(int carId) {
         id = carId;
+    }
+
+    public void EnableEngine(bool enable) {
+        canRace = enable;
     }
 
 }

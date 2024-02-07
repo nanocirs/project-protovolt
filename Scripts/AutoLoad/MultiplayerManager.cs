@@ -14,6 +14,8 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     // Game lobby signals
     [Signal] public delegate void OnPlayerLoadedEventHandler(int peerId, int playerId, bool isLocal);
+    [Signal] public delegate void OnPlayersReadyEventHandler();
+    [Signal] public delegate void OnCountdownEndedEventHandler();
 
     public enum ConnectionStatus {
         Disconnected = 0,
@@ -284,25 +286,60 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
 #region IN_GAME
 
+    public static void PlayersReady() {
+
+        if (instance.Multiplayer.IsServer()) {
+            instance.Rpc("OnPlayersReadyEmit");               
+        }
+        else {
+            instance.RpcId(1, "NotifyPlayersReady");
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyPlayersReady() {
+
+        Rpc("OnPlayersReadyEmit");               
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void OnPlayersReadyEmit() {
+
+        EmitSignal(SignalName.OnPlayersReady);
+
+    }
+
+    public static void EndCountdown() {
+
+        if (instance.Multiplayer.IsServer()) {
+            instance.Rpc("OnCountdownEndedEmit");
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void OnCountdownEndedEmit() {
+
+        EmitSignal(SignalName.OnCountdownEnded);
+
+    }
+
     public static void NotifyPlayerTransform(Transform3D globalTransform, float steering) {
        
         if (instance.Multiplayer.IsServer()) {
-            instance.ServerNotifyTransform(globalTransform, steering);
+            ServerNotifyTransform(globalTransform, steering);
         }
         else {
             instance.RpcId(1, "NotifyTransform", globalTransform, steering);
         }
 
     }
-    
-    public static void UpdateCarState(int peerId, Transform3D carTransform, float steering) {
-        players[peerId].carTransform = carTransform;
-        players[peerId].carSteering = steering;
-    }
 
-    private void ServerNotifyTransform(Transform3D globalTransform, float steering) {
+    private static void ServerNotifyTransform(Transform3D globalTransform, float steering) {
 
-        Rpc("UpdateTransforms", 1, globalTransform, steering);               
+        instance.Rpc("UpdateTransforms", 1, globalTransform, steering);               
 
     }
 
@@ -320,6 +357,12 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         players[peerId].carSteering = steering;
         
     }
+    
+    public static void UpdateCarState(int peerId, Transform3D carTransform, float steering) {
+        players[peerId].carTransform = carTransform;
+        players[peerId].carSteering = steering;
+    }
 
 #endregion
+
 }

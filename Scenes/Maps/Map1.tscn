@@ -33,6 +33,8 @@ size = Vector3(500, 1, 500)
 script = ExtResource("1_lothq")
 carScene = ExtResource("1_u1ruq")
 
+[node name="UI" type="Node" parent="."]
+
 [node name="World" type="Node" parent="."]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="World"]
@@ -91,3 +93,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -50)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -55)
 
 [node name="Players" type="Node" parent="."]
+
+[node name="CheckPoints" type="Node" parent="."]
