@@ -33,6 +33,7 @@ size = Vector3(500, 1, 500)
 
 [node name="Game" type="Node"]
 script = ExtResource("1_bqx5n")
+countdownEnabled = false
 
 [node name="UI" parent="." instance=ExtResource("2_8gf5b")]
 
