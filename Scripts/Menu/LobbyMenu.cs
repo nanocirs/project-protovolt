@@ -12,7 +12,7 @@ public partial class LobbyMenu : CanvasLayer {
     private string mapFile = "Map1.tscn";
     //
 
-    private Dictionary<int, LineEdit> playerRows = new Dictionary<int, LineEdit>();
+    private Dictionary<int, Label> playerRows = new Dictionary<int, Label>();
 
     private bool isSceneValid = true;
 
@@ -95,7 +95,7 @@ public partial class LobbyMenu : CanvasLayer {
         
         if (isSceneValid) {
 
-            LineEdit playerName = playerNameRowScene.Instantiate<LineEdit>();
+            Label playerName = playerNameRowScene.Instantiate<Label>();
             playerName.Text = name;
 
             playersContainer.AddChild(playerName);

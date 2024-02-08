@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cx20o4y16sfxy"]
+[gd_scene load_steps=6 format=3 uid="uid://cx20o4y16sfxy"]
 
 [ext_resource type="Script" path="res://Scripts/Menu/MainMenu.cs" id="1_5yqcj"]
 [ext_resource type="Script" path="res://Scripts/Menu/MainMenuManager.cs" id="1_b2b8l"]
@@ -6,8 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://cyn4fo2de0kwx" path="res://Prefabs/UI/LobbyPlayerRow.tscn" id="3_pfolq"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ilp2v"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bis4i"]
 
 [node name="MainMenu" type="Node" node_paths=PackedStringArray("canvasMainMenu", "canvasLobby")]
 script = ExtResource("1_b2b8l")
@@ -17,7 +15,7 @@ canvasLobby = NodePath("Lobby")
 [node name="Main" type="CanvasLayer" parent="."]
 script = ExtResource("1_5yqcj")
 
-[node name="Title" type="LineEdit" parent="Main"]
+[node name="Title" type="Label" parent="Main"]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -29,10 +27,9 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 60
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_bis4i")
 text = "Coches chocones"
-alignment = 1
-expand_to_text_length = true
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Main"]
 anchors_preset = 8
@@ -66,7 +63,7 @@ playersContainer = NodePath("HBoxContainer/PlayersList/PlayersContainer")
 playerNameRowScene = ExtResource("3_pfolq")
 playButton = NodePath("HBoxContainer/VBoxContainer/Play")
 
-[node name="Title" type="LineEdit" parent="Lobby"]
+[node name="Title" type="Label" parent="Lobby"]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -77,10 +74,9 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_bis4i")
 text = "Server Lobby"
-alignment = 1
-expand_to_text_length = true
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Lobby"]
 anchors_preset = 8
