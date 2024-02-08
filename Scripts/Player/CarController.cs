@@ -47,17 +47,14 @@ public partial class CarController : VehicleBody3D
 
             Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
             
-            if (canRace) {
+            float acceleration = canRace ? Input.GetAxis("down", "up") : 0.0f;
 
-                float acceleration = Input.GetAxis("down", "up");
+            float rpm = wheelBackLeft.GetRpm();
+            wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
 
-                float rpm = wheelBackLeft.GetRpm();
-                wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
-
-                rpm = wheelBackRight.GetRpm();
-                wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+            rpm = wheelBackRight.GetRpm();
+            wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
             
-            }
         }
 
     }

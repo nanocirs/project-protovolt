@@ -3,7 +3,9 @@ using Godot;
 
 public partial class MapManager : Node {
 
-    [Export] private int laps = 3;
+    [Signal] public delegate void OnLapUpdatedEventHandler(int currentLap);
+
+    [Export] public int totalLaps = 3;
     [Export] private PackedScene carScene = null;
 
     private FinishLine finishLine;
@@ -25,34 +27,10 @@ public partial class MapManager : Node {
         playersNode = GetNodeOrNull("Players");
         spawnPointsNode = GetNodeOrNull("SpawnPoints");
         
-        if (finishLine == null) {
+        CheckMapManager();
 
-            isValidLevel = false;
-            GD.PrintErr("Map needs a FinishLine.");
-
-        }
-        else {
-
-            finishLine.OnFinishLineCrossed += OnFinishLineCrossed;
-
-        }
-
-        if (playersNode == null) {
-
-            isValidLevel = false;
-            GD.PrintErr("Map needs a Node called Players.");
-
-        }
-
-        if (spawnPointsNode == null) {
+        if (spawnPointsNode != null) {
             
-            GD.PushWarning("SpawnPoints not set. Generating a SpawnPoint in origin.");
-
-            spawnPoints.Add(new Transform3D());
-
-        }
-        else {
-
             foreach (Node3D spawnPoint in spawnPointsNode.GetChildren()) {
                 
                 spawnPoints.Add(spawnPoint.GlobalTransform);
@@ -60,14 +38,28 @@ public partial class MapManager : Node {
             }
 
         }
+        else {
 
-        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
-
-            MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
+            spawnPoints.Add(new Transform3D());
 
         }
-        else {
-            OnPlayerLoaded();
+
+        if (isValidLevel) {
+
+            finishLine.OnCarCrossedFinishLine += OnCarCrossedFinishLine;
+
+            if (MultiplayerManager.connected) {
+
+                MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
+                MultiplayerManager.instance.OnFinishLineCrossed += OnFinishLineCrossed;
+
+            }
+            else {
+
+                OnPlayerLoaded();
+
+            }
+
         }
 
     }
@@ -78,7 +70,7 @@ public partial class MapManager : Node {
             return;
         }
 
-        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
+        if (MultiplayerManager.connected) {
 
             MultiplayerManager.NotifyPlayerTransform(myCar.GlobalTransform, myCar.Steering);
 
@@ -123,7 +115,7 @@ public partial class MapManager : Node {
 
             cars[playerId] = car;
 
-            if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
+            if (MultiplayerManager.connected) {
 
                 MultiplayerManager.UpdateCarState(peerId, car.GlobalTransform, car.Steering);
 
@@ -133,17 +125,69 @@ public partial class MapManager : Node {
 
     }
 
-    private void OnFinishLineCrossed(CarController car) {
+    private void OnCarCrossedFinishLine(CarController car) {
 
         if (car == myCar) {
-            myLap++;
+
+            if (MultiplayerManager.connected) {
+                MultiplayerManager.FinishLineCrossed();
+            }
+            else {
+                OnFinishLineCrossed(car.id);
+            }
         }
 
     }
 
-    public void EnableCar(bool enable) {
+    private void OnFinishLineCrossed(int playerId) {
+
+        if (playerId == myCar.id) {
+
+            myLap++;
+
+            EmitSignal(SignalName.OnLapUpdated, myLap);
+
+            if (myLap > totalLaps) {
+
+                myCar.EnableEngine(false);
+
+                if (MultiplayerManager.connected) {
+                    MultiplayerManager.CarFinished();
+                }
+            }
+
+        }
+
+    }
+
+    public void EnableCars(bool enable) {
 
         myCar.EnableEngine(enable);
+
+    }
+
+    private void CheckMapManager() {
+
+        if (finishLine == null) {
+
+            isValidLevel = false;
+            GD.PrintErr("Map needs a FinishLine.");
+
+        }
+
+        if (playersNode == null) {
+
+            isValidLevel = false;
+            GD.PrintErr("Map needs a Node called Players.");
+
+        }
+
+        if (spawnPointsNode == null) {
+            
+            GD.PushWarning("SpawnPoints not set. Generating a SpawnPoint in origin.");
+
+        }
+
 
     }
 

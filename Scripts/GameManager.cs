@@ -12,7 +12,6 @@ public partial class GameManager : Node {
     private float currentTime = 0;
 
     private bool isRaceStarted = false;
-
     private bool isValidGame = true;
 
     public override void _Ready() {
@@ -20,21 +19,15 @@ public partial class GameManager : Node {
         hud = GetNodeOrNull<GameUI>("UI");
         mapManager = GetNodeOrNull<MapManager>("Map");
 
-        if (hud == null) {
+        CheckGameManager();
 
-            isValidGame = false;
-            GD.PrintErr("Game Scene needs a Node called UI.");
+        hud.totalLaps = mapManager.totalLaps;
+        hud.CallDeferred("UpdateLap", 0);
+        
 
-        }
+        mapManager.OnLapUpdated += OnLapUpdated;
 
-        if (mapManager == null) {
-
-            isValidGame = false;
-            GD.PrintErr("Game Scene needs a Node called Map.");
-
-        }
-
-        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
+        if (MultiplayerManager.connected) {
 
             MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
             MultiplayerManager.instance.OnPlayersReady += StartCountdown;
@@ -46,7 +39,6 @@ public partial class GameManager : Node {
         else {
 
             OnPlayerLoaded();
-
         }
 
     }
@@ -61,7 +53,7 @@ public partial class GameManager : Node {
 
     private void OnPlayerLoaded(int peerId = 0, int playerId = 0, bool isLocal = true) {
 
-        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
+        if (MultiplayerManager.connected) {
 
             if (playerId == MultiplayerManager.players.Count - 1) {
                 MultiplayerManager.PlayersReady();
@@ -69,9 +61,7 @@ public partial class GameManager : Node {
 
         }
         else {
-
             StartCountdown();
-
         }
 
     }
@@ -84,22 +74,16 @@ public partial class GameManager : Node {
 
             await ToSignal(GetTree().CreateTimer(COUNTDOWN_TIME), SceneTreeTimer.SignalName.Timeout);
 
-            if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
-
+            if (MultiplayerManager.connected) {
                 MultiplayerManager.EndCountdown();
-
             }
             else {
-
                 OnCountdownEnded();
-
             }
 
         }
         else {
-
-            mapManager.EnableCar(true);
-            
+            mapManager.EnableCars(true);
         }
 
     }
@@ -107,7 +91,31 @@ public partial class GameManager : Node {
     private void OnCountdownEnded() {
 
         hud.EndCountdown();
-        mapManager.EnableCar(true);
+        mapManager.EnableCars(true);
+
+    }
+
+    private void OnLapUpdated(int currentLap) {
+
+        hud.UpdateLap(currentLap);
+
+    }
+
+    private void CheckGameManager() {
+
+        if (hud == null) {
+
+            isValidGame = false;
+            GD.PrintErr("GameManager needs a Node called UI.");
+
+        }
+
+        if (mapManager == null) {
+
+            isValidGame = false;
+            GD.PrintErr("GameManager needs a Node called Map.");
+
+        }
 
     }
 

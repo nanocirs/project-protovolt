@@ -4,7 +4,7 @@ using Godot;
 
 public partial class FinishLine : Node {
 
-    [Signal] public delegate void OnFinishLineCrossedEventHandler(CarController car);
+    [Signal] public delegate void OnCarCrossedFinishLineEventHandler(CarController car);
 
     private Area3D areaFirst = null;
     private Area3D areaLast = null;
@@ -38,7 +38,7 @@ public partial class FinishLine : Node {
         if (detectedLegalCars.Contains(car)) {
 
             detectedLegalCars.Remove(car);
-            EmitSignal(SignalName.OnFinishLineCrossed, car as CarController);
+            EmitSignal(SignalName.OnCarCrossedFinishLine, car as CarController);
 
         }
     }
