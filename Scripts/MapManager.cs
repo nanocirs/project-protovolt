@@ -6,6 +6,7 @@ public partial class MapManager : Node {
     [Export] private int laps = 3;
     [Export] private PackedScene carScene = null;
 
+    private FinishLine finishLine;
     private Node playersNode;
     private Node spawnPointsNode;
 
@@ -14,13 +15,35 @@ public partial class MapManager : Node {
 
     private CarController myCar = null;
 
+    private int myLap = 0;
+
     private bool isValidLevel = true;
     
     public override void _Ready() {
 
+        finishLine = GetNodeOrNull<FinishLine>("FinishLine");
         playersNode = GetNodeOrNull("Players");
         spawnPointsNode = GetNodeOrNull("SpawnPoints");
         
+        if (finishLine == null) {
+
+            isValidLevel = false;
+            GD.PrintErr("Map needs a FinishLine.");
+
+        }
+        else {
+
+            finishLine.OnFinishLineCrossed += OnFinishLineCrossed;
+
+        }
+
+        if (playersNode == null) {
+
+            isValidLevel = false;
+            GD.PrintErr("Map needs a Node called Players.");
+
+        }
+
         if (spawnPointsNode == null) {
             
             GD.PushWarning("SpawnPoints not set. Generating a SpawnPoint in origin.");
@@ -38,13 +61,6 @@ public partial class MapManager : Node {
 
         }
 
-        if (playersNode == null) {
-
-            isValidLevel = false;
-            GD.PrintErr("Level Scene needs a Node called Players.");
-
-        }
-
         if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
 
             MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
@@ -57,7 +73,7 @@ public partial class MapManager : Node {
     }
 
     public override void _PhysicsProcess(double delta) {
-
+        GD.Print(myLap);
         if (myCar == null) {
             return;
         }
@@ -113,6 +129,14 @@ public partial class MapManager : Node {
 
             }
 
+        }
+
+    }
+
+    private void OnFinishLineCrossed(CarController car) {
+
+        if (car == myCar) {
+            myLap++;
         }
 
     }

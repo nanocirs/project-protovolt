@@ -10,7 +10,6 @@ public partial class GameManager : Node {
     private MapManager mapManager;
 
     private float currentTime = 0;
-    private int currentLap = 0;
 
     private bool isRaceStarted = false;
 
@@ -45,7 +44,9 @@ public partial class GameManager : Node {
 
         }
         else {
+
             OnPlayerLoaded();
+
         }
 
     }

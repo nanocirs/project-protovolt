@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://6vbph14vt13l"]
 
 [ext_resource type="Script" path="res://Scripts/Editor/EditorBox.cs" id="1_or8k8"]
-[ext_resource type="PackedScene" uid="uid://lqumqpbih6bq" path="res://Scenes/Editor/SpawnPointBox.tscn" id="2_l1pge"]
+[ext_resource type="PackedScene" uid="uid://lqumqpbih6bq" path="res://Prefabs/Editor/SpawnPointBox.tscn" id="2_l1pge"]
 
 [node name="SpawnPoint" type="Node3D"]
 
