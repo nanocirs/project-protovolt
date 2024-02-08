@@ -1,9 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://dbw6jk3rg54of"]
+[gd_scene load_steps=13 format=3 uid="uid://dbw6jk3rg54of"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_bqx5n"]
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="1_gmxs1"]
 [ext_resource type="Script" path="res://Scripts/MapManager.cs" id="1_lothq"]
 [ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="1_u1ruq"]
+[ext_resource type="PackedScene" uid="uid://ci6oujp44fghk" path="res://Prefabs/UI/GameUI.tscn" id="2_8gf5b"]
 [ext_resource type="PackedScene" uid="uid://6vbph14vt13l" path="res://Scenes/MapMechanics/SpawnPoint.tscn" id="4_qg4ms"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_vwt13"]
@@ -33,7 +34,7 @@ size = Vector3(500, 1, 500)
 [node name="Game" type="Node"]
 script = ExtResource("1_bqx5n")
 
-[node name="UI" type="Node" parent="."]
+[node name="UI" parent="." instance=ExtResource("2_8gf5b")]
 
 [node name="Map" type="Node" parent="."]
 script = ExtResource("1_lothq")

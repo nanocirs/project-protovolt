@@ -2,13 +2,11 @@ using Godot;
 
 public partial class GameManager : Node {
 
-    [Signal] public delegate void OnStartedCountdownEventHandler();
-
     [Export] private bool countdownEnabled = true;
 
     private const float COUNTDOWN_TIME = 3.0f;
 
-    private Node uiNode;
+    private GameUI hud;
     private MapManager mapManager;
 
     private float currentTime = 0;
@@ -20,10 +18,10 @@ public partial class GameManager : Node {
 
     public override void _Ready() {
         
-        uiNode = GetNodeOrNull("UI");
+        hud = GetNodeOrNull<GameUI>("UI");
         mapManager = GetNodeOrNull<MapManager>("Map");
 
-        if (uiNode == null) {
+        if (hud == null) {
 
             isValidGame = false;
             GD.PrintErr("Game Scene needs a Node called UI.");
@@ -80,29 +78,34 @@ public partial class GameManager : Node {
     private async void StartCountdown() {
         
         if (countdownEnabled) {
-
-            EmitSignal(SignalName.OnStartedCountdown);
+            
+            hud.StartCountdown();
 
             await ToSignal(GetTree().CreateTimer(COUNTDOWN_TIME), SceneTreeTimer.SignalName.Timeout);
 
             if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
+
                 MultiplayerManager.EndCountdown();
+
             }
             else {
+
                 OnCountdownEnded();
+
             }
 
         }
         else {
 
             mapManager.EnableCar(true);
-
+            
         }
 
     }
 
     private void OnCountdownEnded() {
 
+        hud.EndCountdown();
         mapManager.EnableCar(true);
 
     }
