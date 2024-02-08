@@ -8,7 +8,6 @@ public partial class LobbyMenu : CanvasLayer {
     [Export] private Button playButton = null;
     
     // @TODO: Segregate to another class (LobbySettings?)
-    private int minimumPlayers = 1;
     private string mapFile = "Map1.tscn";
     //
 
@@ -80,13 +79,7 @@ public partial class LobbyMenu : CanvasLayer {
             }
 
             playButton.Hide();
-
-            if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
-                playButton.Disabled = false;
-            }
-            else {
-                playButton.Disabled = true;
-            }
+            playButton.Disabled = true;
 
         }
     }
@@ -101,7 +94,7 @@ public partial class LobbyMenu : CanvasLayer {
             playersContainer.AddChild(playerName);
             playerRows[id] = playerName;
 
-            if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
+            if (MultiplayerManager.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
                 playButton.Disabled = false;
             }
             else {
@@ -120,7 +113,7 @@ public partial class LobbyMenu : CanvasLayer {
             playerRows[id].QueueFree();
             playerRows.Remove(id);
 
-            if (MultiplayerManager.instance.GetTotalPlayers() >= minimumPlayers) {
+            if (MultiplayerManager.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
                 playButton.Disabled = false;
             }
             else {

@@ -34,6 +34,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private const int MAX_CONNECTIONS = 12;
 
     public static ConnectionStatus connectionStatus { get; private set; } = ConnectionStatus.Disconnected;
+    public static int minimumPlayers { get; private set; } = 2;
 
     public static Dictionary<int, PlayerData> players = new Dictionary<int, PlayerData>();
     public static int localPlayerId = -1;
@@ -137,7 +138,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-    public int GetTotalPlayers() {
+    public static int GetTotalPlayers() {
         
         return players.Count;
 
