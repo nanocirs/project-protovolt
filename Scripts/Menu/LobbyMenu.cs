@@ -8,7 +8,7 @@ public partial class LobbyMenu : CanvasLayer {
     [Export] private Button playButton = null;
     
     // @TODO: Segregate to another class (LobbySettings?)
-    private string mapFile = "Map1.tscn";
+    private string mapFile = "Game.tscn";
     //
 
     private Dictionary<int, Label> playerRows = new Dictionary<int, Label>();

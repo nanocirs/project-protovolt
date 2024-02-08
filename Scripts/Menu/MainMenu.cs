@@ -3,7 +3,7 @@ using Godot;
 public partial class MainMenu : CanvasLayer {
 
     private void OnPlayPressed() {
-		GameStateMachine.instance.LoadScene("Maps/Map1.tscn");
+		GameStateMachine.instance.LoadScene("Maps/Game.tscn");
 	}
 
 	private void OnConnectPressed() {

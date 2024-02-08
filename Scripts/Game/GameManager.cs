@@ -9,7 +9,10 @@ public partial class GameManager : Node {
     private GameUI hud;
     private MapManager mapManager;
 
-    private float currentTime = 0;
+    private int currentPosition = 0;
+    private int currentLap = 0;
+    private int currentCheckpoint = 0;
+    private float currentTime = 0.0f;
 
     private bool isRaceStarted = false;
     private bool isValidGame = true;
@@ -22,22 +25,22 @@ public partial class GameManager : Node {
         CheckGameManager();
 
         hud.totalLaps = mapManager.totalLaps;
-        hud.CallDeferred("UpdateLap", 0);
-        
+        hud.UpdateLap(0);
 
-        mapManager.OnLapUpdated += OnLapUpdated;
+        mapManager.OnCheckpointCrossed += OnCheckpointCrossed;
 
         if (MultiplayerManager.connected) {
 
             MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
             MultiplayerManager.instance.OnPlayersReady += StartCountdown;
             MultiplayerManager.instance.OnCountdownEnded += OnCountdownEnded;
+            MultiplayerManager.instance.OnCarFinished += CarFinished;
+            MultiplayerManager.instance.OnCheckpointConfirm += OnCheckpointConfirm;
 
             MultiplayerManager.NotifyMapLoaded();
 
         }
         else {
-
             OnPlayerLoaded();
         }
 
@@ -83,7 +86,7 @@ public partial class GameManager : Node {
 
         }
         else {
-            mapManager.EnableCars(true);
+            mapManager.EnableCar(true);
         }
 
     }
@@ -91,14 +94,62 @@ public partial class GameManager : Node {
     private void OnCountdownEnded() {
 
         hud.EndCountdown();
-        mapManager.EnableCars(true);
+        mapManager.EnableCar(true);
 
     }
 
-    private void OnLapUpdated(int currentLap) {
+    private void OnLapUpdated() {
+
+        currentLap++;
 
         hud.UpdateLap(currentLap);
 
+        if (currentLap > mapManager.totalLaps) {
+
+            mapManager.EnableCar(false);
+            isRaceStarted = false;
+
+            if (MultiplayerManager.connected) {
+                MultiplayerManager.CarFinished(currentTime);
+            }
+            else {
+                CarFinished();
+            }
+        }
+
+    }
+
+    private void OnCheckpointCrossed(int checkpointSection) {
+
+        // Only add current checkpoint if they are crossed in order.
+        if (currentCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
+
+            if (MultiplayerManager.connected) {
+                MultiplayerManager.CheckpointConfirm();
+            }
+            else {
+                OnCheckpointConfirm(currentCheckpoint + 1);
+            }
+        
+        }
+
+    }
+
+    private void OnCheckpointConfirm(int confirmedCheckpoint) {
+
+        // Add lap when crossing first checkpoint of the list (i.e. finish line)      
+        if (currentCheckpoint % mapManager.GetCheckpointsPerLap() == 0) {
+
+            OnLapUpdated();
+
+        }
+
+        currentCheckpoint = confirmedCheckpoint;
+
+    }
+
+    private void CarFinished() {
+        hud.EnableScoreboard();
     }
 
     private void CheckGameManager() {

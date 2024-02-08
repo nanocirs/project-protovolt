@@ -16,14 +16,17 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnPlayerLoadedEventHandler(int peerId, int playerId, bool isLocal);
     [Signal] public delegate void OnPlayersReadyEventHandler();
     [Signal] public delegate void OnCountdownEndedEventHandler();
-    [Signal] public delegate void OnFinishLineCrossedEventHandler(int playerId);
-    [Signal] public delegate void OnCarFinishedEventHandler(int playerId);
+    [Signal] public delegate void OnCheckpointCrossedEventHandler(int playerId, int checkpointSection);
+    [Signal] public delegate void OnCheckpointConfirmEventHandler(int confirmedCheckpoint);
+    [Signal] public delegate void OnCarFinishedEventHandler();
 
     public class PlayerData {
         public string playerName;
         public int playerId; 
-        public int currentLap;
         public bool finished;
+        public int position;
+        public int currentCheckpoint;
+        public float raceTime;
         public Transform3D carTransform;
         public float carSteering;
     }
@@ -220,7 +223,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     
             localPlayerId = playerIterator++;
 
-            players[SV_PEER_ID] = RestartPlayer(0, 0, false);
+            players[SV_PEER_ID] = RestartPlayer(0);
 
             instance.CallDeferred("OnPlayerLoadedEmit", SV_PEER_ID, 0);
 
@@ -235,7 +238,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         int clientPlayerId = playerIterator++;
 
-        players[Multiplayer.GetRemoteSenderId()] = RestartPlayer(clientPlayerId, 0, false);
+        players[Multiplayer.GetRemoteSenderId()] = RestartPlayer(clientPlayerId);
 
         RpcId(Multiplayer.GetRemoteSenderId(), "SetPlayerId", clientPlayerId);
 
@@ -259,7 +262,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void UpdatePlayerList(int peerId, int playerId) {
 
-        players[peerId] = RestartPlayer(playerId, 0, false);
+        players[peerId] = RestartPlayer(playerId);
 
     }
 
@@ -281,12 +284,12 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         }
     }
 
-    private static PlayerData RestartPlayer(int playerId, int currentLap, bool finished) {
+    private static PlayerData RestartPlayer(int playerId) {
         
         return new PlayerData {
             playerId = playerId,
-            currentLap = currentLap,
-            finished = finished
+            currentCheckpoint = 0,
+            finished = false
         };
         
     }
@@ -339,32 +342,64 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-    // FINISH LINE CROSSED
+    // CHECKPOINT CROSSED
 
-    public static void FinishLineCrossed() {
+    public static void CheckpointCrossed() {
 
         if (instance.Multiplayer.IsServer()) {
-            instance.Rpc("OnFinishLineCrossedEmit", SV_PEER_ID);
+            instance.Rpc("OnCheckpointCrossedEmit", SV_PEER_ID);
         }
         else {
-            instance.RpcId(SV_PEER_ID, "NotifyFinishLineCrossed");
+            instance.RpcId(SV_PEER_ID, "NotifyCheckpointCrossed");
         }
 
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
-    private void NotifyFinishLineCrossed() {
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyCheckpointCrossed() {
 
-        Rpc("OnFinishLineCrossedEmit", Multiplayer.GetRemoteSenderId());
+        Rpc("OnCheckpointCrossedEmit", Multiplayer.GetRemoteSenderId());
         
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void OnFinishLineCrossedEmit(int peerId) {
+    private void OnCheckpointCrossedEmit(int peerId) {
 
-        players[peerId].currentLap++;
+        if (instance.Multiplayer.GetUniqueId() == peerId) {
+            EmitSignal(SignalName.OnCheckpointCrossed, players[peerId].playerId, players[peerId].currentCheckpoint);
+        }
 
-        EmitSignal(SignalName.OnFinishLineCrossed, players[peerId].playerId);
+    }
+
+    // CHECKPOINT CONFIRM
+
+    public static void CheckpointConfirm() {
+
+        if (instance.Multiplayer.IsServer()) {
+            instance.Rpc("OnCheckpointConfirmEmit", SV_PEER_ID);
+        }
+        else {
+            instance.RpcId(SV_PEER_ID, "NotifyCheckpointConfirm");
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyCheckpointConfirm() {
+        GD.Print(Multiplayer.GetRemoteSenderId());
+
+        Rpc("OnCheckpointConfirmEmit", Multiplayer.GetRemoteSenderId());
+        
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void OnCheckpointConfirmEmit(int peerId) {
+
+        players[peerId].currentCheckpoint++;
+
+        if (instance.Multiplayer.GetUniqueId() == peerId) {
+            EmitSignal(SignalName.OnCheckpointConfirm, players[peerId].currentCheckpoint);
+        }
 
     }
 
@@ -396,16 +431,35 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     }
 
     // CAR FINISHED
-    public static void CarFinished() {
+
+    public static void CarFinished(float raceTime) {
+        
+        if (instance.Multiplayer.IsServer()) {
+            instance.Rpc("OnCarFinishedEmit", SV_PEER_ID, raceTime);
+        }
+        else {
+            instance.RpcId(SV_PEER_ID, "NotifyCarFinished", raceTime);
+        }
 
     }
 
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyCarFinished(float raceTime) {
+
+        Rpc("OnCarFinishedEmit", Multiplayer.GetRemoteSenderId(), raceTime);
+        
+    }
+
+
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void OnCarFinishedEmit() {
+    private void OnCarFinishedEmit(int peerId, float raceTime) {
 
-        players[Multiplayer.GetRemoteSenderId()].currentLap++;
+        players[peerId].finished = true;
+        players[peerId].raceTime = raceTime;
 
-        EmitSignal(SignalName.OnCarFinished, players[Multiplayer.GetRemoteSenderId()].playerId);
+        if (instance.Multiplayer.GetUniqueId() == peerId) {
+            EmitSignal(SignalName.OnCarFinished);
+        }
 
     }
  

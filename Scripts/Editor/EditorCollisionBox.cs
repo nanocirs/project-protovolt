@@ -7,7 +7,7 @@ public partial class EditorCollisionBox : CollisionShape3D {
 
     public override void _Ready() {
 
-        if (Engine.IsEditorHint()) {
+        if (Engine.IsEditorHint() || true) {
 
             MeshInstance3D meshInstance = new MeshInstance3D();
             meshInstance.Mesh = new BoxMesh();

@@ -23,7 +23,7 @@ public partial class GameStateMachine : Singleton<GameStateMachine> {
 				break;
 			case GameState.Loading:
 			case GameState.Playing:
-            	LoadScene("Maps/Map1.tscn");
+            	LoadScene("Maps/Game.tscn");
                 break;
 			default:
 				LoadScene("Menu/MainMenu.tscn");

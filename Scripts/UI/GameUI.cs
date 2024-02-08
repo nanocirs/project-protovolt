@@ -54,6 +54,10 @@ public partial class GameUI : CanvasLayer {
         lapsLabel.Text = "Lap " + Mathf.Clamp(currentLap, 0, totalLaps) + "/" + totalLaps;
     }
 
+    public void EnableScoreboard() {
+        
+    }
+
     private void CheckHud() {
 
         if (countdownLabel == null) {
