@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cijdw0dvbcc03"]
+[gd_scene load_steps=5 format=3 uid="uid://cijdw0dvbcc03"]
 
 [ext_resource type="Script" path="res://Scripts/MapMechanics/FinishLine.cs" id="1_b44wc"]
+[ext_resource type="Script" path="res://Scripts/Editor/EditorCollisionBox.cs" id="2_vs1v4"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vufuw"]
 size = Vector3(60, 20, 2)
@@ -15,7 +16,7 @@ script = ExtResource("1_b44wc")
 collision_layer = 0
 collision_mask = 2
 
-[node name="ColliderShape3D" type="CollisionShape3D" parent="AreaFirst"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AreaFirst"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 6)
 shape = SubResource("BoxShape3D_vufuw")
 
@@ -23,9 +24,11 @@ shape = SubResource("BoxShape3D_vufuw")
 collision_layer = 0
 collision_mask = 2
 
-[node name="ColliderShape3D" type="CollisionShape3D" parent="AreaLast"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AreaLast"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
 shape = SubResource("BoxShape3D_av8m7")
+script = ExtResource("2_vs1v4")
+color = Color(0, 0.756863, 0.34902, 0.756863)
 
 [connection signal="body_entered" from="AreaFirst" to="." method="OnCarEnteredAreaFirst"]
 [connection signal="body_entered" from="AreaLast" to="." method="OnCarEnteredAreaLast"]

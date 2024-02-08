@@ -73,7 +73,7 @@ public partial class MapManager : Node {
     }
 
     public override void _PhysicsProcess(double delta) {
-        GD.Print(myLap);
+
         if (myCar == null) {
             return;
         }
