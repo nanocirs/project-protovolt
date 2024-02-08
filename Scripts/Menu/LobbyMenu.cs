@@ -103,7 +103,6 @@ public partial class LobbyMenu : CanvasLayer {
 
         }
 
-
     }
 
     private void OnPlayerDisconnected(int id, string name) {

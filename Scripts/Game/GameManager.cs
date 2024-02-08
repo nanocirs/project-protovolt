@@ -17,6 +17,9 @@ public partial class GameManager : Node {
     private bool isRaceStarted = false;
     private bool isValidGame = true;
 
+    // @TODO: Hay que sacar esto de aquí
+    private string disconnected_name = "Client";
+
     public override void _Ready() {
         
         hud = GetNodeOrNull<GameUI>("UI");
@@ -24,24 +27,29 @@ public partial class GameManager : Node {
 
         CheckGameManager();
 
-        hud.totalLaps = mapManager.totalLaps;
-        hud.UpdateLap(0);
+        if (isValidGame) {
 
-        mapManager.OnCheckpointCrossed += OnCheckpointCrossed;
+            hud.totalLaps = mapManager.totalLaps;
+            hud.UpdateLap(0);
 
-        if (MultiplayerManager.connected) {
+            mapManager.OnCheckpointCrossed += OnCheckpointCrossed;
 
-            MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
-            MultiplayerManager.instance.OnPlayersReady += StartCountdown;
-            MultiplayerManager.instance.OnCountdownEnded += OnCountdownEnded;
-            MultiplayerManager.instance.OnCarFinished += CarFinished;
-            MultiplayerManager.instance.OnCheckpointConfirm += OnCheckpointConfirm;
 
-            MultiplayerManager.NotifyMapLoaded();
+            if (MultiplayerManager.connected) {
 
-        }
-        else {
-            OnPlayerLoaded();
+                MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
+                MultiplayerManager.instance.OnPlayersReady += StartCountdown;
+                MultiplayerManager.instance.OnCountdownEnded += OnCountdownEnded;
+                MultiplayerManager.instance.OnCarFinished += OnCarFinished;
+                MultiplayerManager.instance.OnCheckpointConfirm += OnCheckpointConfirm;
+
+                MultiplayerManager.NotifyMapLoaded();
+
+            }
+            else {
+                OnPlayerLoaded();
+            }
+
         }
 
     }
@@ -86,7 +94,7 @@ public partial class GameManager : Node {
 
         }
         else {
-            mapManager.EnableCar(true);
+            OnCountdownEnded();
         }
 
     }
@@ -95,6 +103,8 @@ public partial class GameManager : Node {
 
         hud.EndCountdown();
         mapManager.EnableCar(true);
+        
+        isRaceStarted = true;
 
     }
 
@@ -113,7 +123,7 @@ public partial class GameManager : Node {
                 MultiplayerManager.CarFinished(currentTime);
             }
             else {
-                CarFinished();
+                OnCarFinished(mapManager.localCar.id, disconnected_name, currentTime);
             }
         }
 
@@ -148,8 +158,16 @@ public partial class GameManager : Node {
 
     }
 
-    private void CarFinished() {
-        hud.EnableScoreboard();
+    private void OnCarFinished(int playerId, string name, float raceTime) {
+
+        hud.AddScore(name, raceTime);
+
+        if (playerId == mapManager.localCar.id) {
+
+            hud.EnableScoreboard();
+
+        }
+
     }
 
     private void CheckGameManager() {

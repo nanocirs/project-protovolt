@@ -1,9 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://ci6oujp44fghk"]
+[gd_scene load_steps=3 format=3 uid="uid://ci6oujp44fghk"]
 
 [ext_resource type="Script" path="res://Scripts/UI/GameUI.cs" id="1_aqp26"]
+[ext_resource type="PackedScene" uid="uid://cyn4fo2de0kwx" path="res://Prefabs/UI/LobbyPlayerRow.tscn" id="2_f8het"]
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource("1_aqp26")
+playerNameRowScene = ExtResource("2_f8het")
 
 [node name="Countdown" type="Label" parent="."]
 visible = false
@@ -27,3 +29,31 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 26
 text = "Lap 0/3"
+
+[node name="Scoreboard" type="Panel" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -200.0
+offset_right = 150.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Scoreboard"]
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 400.0
+
+[node name="Title" type="Label" parent="Scoreboard/VBoxContainer"]
+layout_mode = 2
+text = "Scores
+"
+horizontal_alignment = 1
+
+[node name="ScoreContainer" type="VBoxContainer" parent="Scoreboard/VBoxContainer"]
+layout_mode = 2
