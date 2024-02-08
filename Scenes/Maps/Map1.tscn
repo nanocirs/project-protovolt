@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://dbw6jk3rg54of"]
+[gd_scene load_steps=12 format=3 uid="uid://dbw6jk3rg54of"]
 
+[ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_bqx5n"]
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="1_gmxs1"]
-[ext_resource type="Script" path="res://Scripts/LevelManager.cs" id="1_lothq"]
+[ext_resource type="Script" path="res://Scripts/MapManager.cs" id="1_lothq"]
 [ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="1_u1ruq"]
 [ext_resource type="PackedScene" uid="uid://6vbph14vt13l" path="res://Scenes/MapMechanics/SpawnPoint.tscn" id="4_qg4ms"]
 
@@ -29,69 +30,72 @@ uv1_scale = Vector3(80, 80, 80)
 [sub_resource type="BoxShape3D" id="BoxShape3D_dmdgy"]
 size = Vector3(500, 1, 500)
 
-[node name="Level" type="Node"]
-script = ExtResource("1_lothq")
-carScene = ExtResource("1_u1ruq")
+[node name="Game" type="Node"]
+script = ExtResource("1_bqx5n")
 
 [node name="UI" type="Node" parent="."]
 
-[node name="World" type="Node" parent="."]
+[node name="Map" type="Node" parent="."]
+script = ExtResource("1_lothq")
+carScene = ExtResource("1_u1ruq")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="World"]
+[node name="World" type="Node" parent="Map"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Map/World"]
 environment = SubResource("Environment_7o2iv")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Map/World"]
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 shadow_enabled = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="World"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Map/World"]
 mesh = SubResource("PlaneMesh_bcaba")
 surface_material_override/0 = SubResource("StandardMaterial3D_ynr4b")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="World/MeshInstance3D"]
+[node name="StaticBody3D" type="StaticBody3D" parent="Map/World/MeshInstance3D"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="World/MeshInstance3D/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Map/World/MeshInstance3D/StaticBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_dmdgy")
 
-[node name="SpawnPoints" type="Node" parent="."]
+[node name="SpawnPoints" type="Node" parent="Map"]
 
-[node name="SpawnPoint0" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint0" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
 
-[node name="SpawnPoint1" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint1" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -5)
 
-[node name="SpawnPoint2" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint2" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -10)
 
-[node name="SpawnPoint3" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint3" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -15)
 
-[node name="SpawnPoint4" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint4" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -20)
 
-[node name="SpawnPoint5" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint5" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -25)
 
-[node name="SpawnPoint6" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint6" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -30)
 
-[node name="SpawnPoint7" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint7" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -35)
 
-[node name="SpawnPoint8" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint8" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -40)
 
-[node name="SpawnPoint9" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint9" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -45)
 
-[node name="SpawnPoint10" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint10" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -50)
 
-[node name="SpawnPoint11" parent="SpawnPoints" instance=ExtResource("4_qg4ms")]
+[node name="SpawnPoint11" parent="Map/SpawnPoints" instance=ExtResource("4_qg4ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -55)
 
-[node name="Players" type="Node" parent="."]
+[node name="Players" type="Node" parent="Map"]
 
-[node name="CheckPoints" type="Node" parent="."]
+[node name="CheckPoints" type="Node" parent="Map"]

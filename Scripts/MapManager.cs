@@ -1,28 +1,18 @@
 using System.Collections.Generic;
 using Godot;
 
-public partial class LevelManager : Node {
-
-    [Signal] public delegate void OnStartedCountdownEventHandler();
+public partial class MapManager : Node {
 
     [Export] private int laps = 3;
-    [Export] private bool countdownEnabled = true;
     [Export] private PackedScene carScene = null;
-
-    private const float COUNTDOWN_TIME = 3.0f;
-
-    private Dictionary<int, CarController> cars = new Dictionary<int, CarController>();
-    private List<Transform3D> spawnPoints = new List<Transform3D>();
 
     private Node playersNode;
     private Node spawnPointsNode;
 
+    private Dictionary<int, CarController> cars = new Dictionary<int, CarController>();
+    private List<Transform3D> spawnPoints = new List<Transform3D>();
+
     private CarController myCar = null;
-
-    private int currentLap = 0;
-    private float currentTime = 0;
-
-    private bool isRaceStarted = false;
 
     private bool isValidLevel = true;
     
@@ -58,30 +48,12 @@ public partial class LevelManager : Node {
         if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
 
             MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
-            MultiplayerManager.instance.OnPlayersReady += StartCountdown;
-            MultiplayerManager.instance.OnCountdownEnded += OnCountdownEnded;
-
-            MultiplayerManager.NotifyMapLoaded();
 
         }
         else {
-            OnPlayerLoaded(0, 0, true);
+            OnPlayerLoaded();
         }
 
-    }
-
-    public override void _Process(double delta) {
-
-        if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected && !isRaceStarted) {
-
-
-        }
-
-        if (isRaceStarted) {
-            currentTime += (float)delta;
-        }
-        
-            
     }
 
     public override void _PhysicsProcess(double delta) {
@@ -113,7 +85,7 @@ public partial class LevelManager : Node {
 
     }
 
-    private void OnPlayerLoaded(int peerId, int playerId, bool isLocal) {
+    private void OnPlayerLoaded(int peerId = 0, int playerId = 0, bool isLocal = true) {
 
         if (isValidLevel) {
 
@@ -139,45 +111,15 @@ public partial class LevelManager : Node {
 
                 MultiplayerManager.UpdateCarState(peerId, car.GlobalTransform, car.Steering);
 
-                if (playerId == MultiplayerManager.players.Count - 1) {
-                    MultiplayerManager.PlayersReady();
-                }
-
             }
-            else {
-                StartCountdown();
-            }
-
-        }
-    }
-
-    private async void StartCountdown() {
-        
-        if (countdownEnabled) {
-
-            EmitSignal(SignalName.OnStartedCountdown);
-
-            await ToSignal(GetTree().CreateTimer(COUNTDOWN_TIME), SceneTreeTimer.SignalName.Timeout);
-
-            if (MultiplayerManager.connectionStatus == MultiplayerManager.ConnectionStatus.Connected) {
-                MultiplayerManager.EndCountdown();
-            }
-            else {
-                OnCountdownEnded();
-            }
-
-        }
-        else {
-
-            myCar.EnableEngine(true);
 
         }
 
     }
 
-    private void OnCountdownEnded() {
+    public void EnableCar(bool enable) {
 
-        myCar.EnableEngine(true);
+        myCar.EnableEngine(enable);
 
     }
 
