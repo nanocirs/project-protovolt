@@ -4,6 +4,7 @@ using Godot;
 
 public partial class GameManager : Node {
 
+    [Export(PropertyHint.Range, "1,12")] private const int maxPlayers = 12;
     [Export] private bool countdownEnabled = true;
 
     private const float COUNTDOWN_TIME = 3.0f;
@@ -38,7 +39,6 @@ public partial class GameManager : Node {
 
             mapManager.OnCheckpointCrossed += OnCheckpointCrossed;
 
-
             if (MultiplayerManager.connected) {
 
                 MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
@@ -60,6 +60,10 @@ public partial class GameManager : Node {
 
     public override void _Process(double delta) {
 
+        if (!isValidGame) {
+            return;
+        }
+
         if (isRaceStarted) {
             currentTime += (float)delta;
 
@@ -67,7 +71,6 @@ public partial class GameManager : Node {
 
         }
 
-            
     }
 
     private void OnPlayerLoaded(int peerId = 0, int playerId = 0, bool isLocal = true) {
@@ -87,7 +90,6 @@ public partial class GameManager : Node {
 
     private async void StartCountdown() {
 
-        playersByPosition = OrderPlayersByPosition();
         hud.SetPosition(GetRacePosition());
 
         if (countdownEnabled) {
@@ -140,32 +142,46 @@ public partial class GameManager : Node {
 
     }
 
-    private void OnCheckpointCrossed(int checkpointSection) {
+    private void OnCheckpointCrossed(CarController car, int checkpointSection) {
 
-        // Only add current checkpoint if they are crossed in order.
-        if (currentCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
+        if (MultiplayerManager.connected) {
 
-            if (MultiplayerManager.connected) {
-                MultiplayerManager.CheckpointConfirm();
+            if (car.playerId == GameState.playerId) {
+                // Only add current checkpoint if they are crossed in order.
+                if (currentCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
+                    MultiplayerManager.CheckpointConfirm();
+                }
+
             }
-            else {
-                OnCheckpointConfirm(currentCheckpoint + 1);
+
+        }
+        else {
+            if (GameState.players[car.playerId].currentCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
+                OnCheckpointConfirm(car.playerId, GameState.players[car.playerId].currentCheckpoint + 1);
             }
-        
         }
 
     }
 
-    private void OnCheckpointConfirm(int confirmedCheckpoint) {
+    private void OnCheckpointConfirm(int playerId, int confirmedCheckpoint) {
 
-        // Add lap when crossing first checkpoint of the list (i.e. finish line)      
-        if (currentCheckpoint % mapManager.GetCheckpointsPerLap() == 0) {
+        if (!MultiplayerManager.connected) {
 
-            OnLapUpdated();
+            GameState.players[playerId].currentCheckpoint = confirmedCheckpoint;
 
         }
 
+        // @TODO: rework to move currentCheckpoint to PlayerData players.
         currentCheckpoint = confirmedCheckpoint;
+
+        if (playerId == GameState.playerId) {
+
+            // Add lap when crossing first checkpoint of the list (i.e. finish line)      
+            if ((confirmedCheckpoint - 1) % mapManager.GetCheckpointsPerLap() == 0) {
+                OnLapUpdated();
+            }
+
+        }
 
     }
 
@@ -176,9 +192,7 @@ public partial class GameManager : Node {
         for (int i = 0; i < playersByPosition.Count; i++) {
 
             if (playersByPosition[i].playerId == GameState.playerId) {
-
                 return i + 1;
-
             }
 
         }
@@ -187,18 +201,18 @@ public partial class GameManager : Node {
 
     }
 
+    private List<PlayerData> OrderPlayersByPosition() {
+
+        return GameState.players.Values.OrderByDescending(player => player.currentCheckpoint)
+                                       .ThenBy(player => CalculateDistanceToNextCheckpoint(player.carTransform.Origin, player.currentCheckpoint)).ToList();
+
+    }
+
     private float CalculateDistanceToNextCheckpoint(Vector3 position, int currentCheckpoint) {
         
         int sectionNumber = currentCheckpoint % mapManager.GetCheckpointsPerLap();
 
         return mapManager.checkpoints[sectionNumber].plane.DistanceTo(position);
-
-    }
-
-    private List<PlayerData> OrderPlayersByPosition() {
-
-        return GameState.players.Values.OrderByDescending(player => player.currentCheckpoint)
-                                       .ThenBy(player => CalculateDistanceToNextCheckpoint(player.carTransform.Origin, currentCheckpoint)).ToList();
 
     }
 

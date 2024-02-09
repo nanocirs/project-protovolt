@@ -13,10 +13,11 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     // Game lobby signals
     [Signal] public delegate void OnPlayerLoadedEventHandler(int peerId, int playerId, bool isLocal);
+
+    // In-Game signals
     [Signal] public delegate void OnPlayersReadyEventHandler();
     [Signal] public delegate void OnCountdownEndedEventHandler();
-    [Signal] public delegate void OnCheckpointCrossedEventHandler(int playerId, int checkpointSection);
-    [Signal] public delegate void OnCheckpointConfirmEventHandler(int confirmedCheckpoint);
+    [Signal] public delegate void OnCheckpointConfirmEventHandler(int playedId, int confirmedCheckpoint);
     [Signal] public delegate void OnCarFinishedEventHandler(int playerId, string name, float raceTime);
 
     private const int SV_PEER_ID = 1;
@@ -245,7 +246,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void EmitPlayerLoaded(int playerId) {
 
@@ -311,35 +311,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-    // CHECKPOINT CROSSED
-
-    public static void CheckpointCrossed() {
-
-        if (instance.Multiplayer.IsServer()) {
-            instance.Rpc("OnCheckpointCrossedEmit", SV_PEER_ID);
-        }
-        else {
-            instance.RpcId(SV_PEER_ID, "NotifyCheckpointCrossed");
-        }
-
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void NotifyCheckpointCrossed() {
-
-        Rpc("OnCheckpointCrossedEmit", Multiplayer.GetRemoteSenderId());
-        
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void OnCheckpointCrossedEmit(int peerId) {
-
-        if (instance.Multiplayer.GetUniqueId() == peerId) {
-            EmitSignal(SignalName.OnCheckpointCrossed, GameState.players[peerId].playerId, GameState.players[peerId].currentCheckpoint);
-        }
-
-    }
-
     // CHECKPOINT CONFIRM
 
     public static void CheckpointConfirm() {
@@ -366,26 +337,26 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         GameState.players[peerId].currentCheckpoint++;
 
         if (instance.Multiplayer.GetUniqueId() == peerId) {
-            EmitSignal(SignalName.OnCheckpointConfirm, GameState.players[peerId].currentCheckpoint);
+            EmitSignal(SignalName.OnCheckpointConfirm, GameState.players[peerId].playerId, GameState.players[peerId].currentCheckpoint);
         }
 
     }
 
     // SEND PLAYER TRANSFORM
 
-    public static void NotifyPlayerTransform(Transform3D globalTransform, float steering) {
+    public static void SendPlayerTransform(Transform3D globalTransform, float steering) {
        
         if (instance.Multiplayer.IsServer()) {
             instance.Rpc("UpdateTransforms", SV_PEER_ID, globalTransform, steering);               
         }
         else {
-            instance.RpcId(SV_PEER_ID, "NotifyTransform", globalTransform, steering);
+            instance.RpcId(SV_PEER_ID, "NotifyPlayerTransform", globalTransform, steering);
         }
 
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
-    private void NotifyTransform(Transform3D globalTransform, float steering) {
+    private void NotifyPlayerTransform(Transform3D globalTransform, float steering) {
 
         Rpc("UpdateTransforms", Multiplayer.GetRemoteSenderId(), globalTransform, steering);               
 
@@ -394,8 +365,9 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
     private void UpdateTransforms(int peerId, Transform3D globalTransform, float steering) {
 
-        UpdateCarState(peerId, globalTransform, steering);
-        
+        GameState.players[peerId].carTransform = globalTransform;
+        GameState.players[peerId].carSteering = steering;     
+
     }
 
     // CAR FINISHED

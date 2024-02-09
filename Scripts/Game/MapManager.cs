@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 
 public partial class MapManager : Node {
 
-    [Signal] public delegate void OnCheckpointCrossedEventHandler(int checkpointSection);
+    [Signal] public delegate void OnCheckpointCrossedEventHandler(CarController car, int checkpointSection);
 
     [Export] public int totalLaps { get; private set; } = 3;
     [Export] private PackedScene carScene = null;
@@ -56,11 +57,11 @@ public partial class MapManager : Node {
 
             if (MultiplayerManager.connected) {
 
-                MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
+                MultiplayerManager.instance.OnPlayerLoaded += LoadPlayer;
 
             }
             else {
-                OnPlayerLoaded();
+                SetupPlayers();
             }
 
         }
@@ -69,21 +70,17 @@ public partial class MapManager : Node {
 
     public override void _PhysicsProcess(double delta) {
 
-        if (localCar == null) {
+        if (!isValidLevel || localCar == null) {
             return;
         }
 
         if (MultiplayerManager.connected) {
 
-            MultiplayerManager.NotifyPlayerTransform(localCar.GlobalTransform, localCar.Steering);
+            MultiplayerManager.SendPlayerTransform(localCar.GlobalTransform, localCar.Steering);
 
-        }
+            foreach (var tuple in GameState.players) {
 
-        foreach (var tuple in GameState.players) {
-
-            if (cars.ContainsKey(tuple.Value.playerId)) {
-            
-                if (tuple.Value.playerId != GameState.playerId) {
+                if (cars.ContainsKey(tuple.Value.playerId) && tuple.Value.playerId != GameState.playerId) {
 
                     cars[tuple.Value.playerId].GlobalTransform = cars[tuple.Value.playerId].GlobalTransform.InterpolateWith(tuple.Value.carTransform, 13.0f * (float)delta);
                     cars[tuple.Value.playerId].Steering = tuple.Value.carSteering;
@@ -93,47 +90,63 @@ public partial class MapManager : Node {
             }
 
         }
+        else {
+            foreach (var tuple in GameState.players) {
+                tuple.Value.carTransform = cars[tuple.Value.playerId].GlobalTransform;
+                tuple.Value.carSteering = cars[tuple.Value.playerId].Steering;
+            }
+        }
 
     }
 
-    private void OnPlayerLoaded(int peerId = 0, int playerId = 0, bool isLocal = true) {
+    private void SetupPlayers() {
 
-        if (isValidLevel) {
+        GameState.players[0] = new PlayerData();
+        GameState.players[0].playerId = 0;
+        GameState.players[0].playerName = GameState.playerName;
 
-            if (playerId >= spawnPoints.Count) {
-                GD.PrintErr("Not enough spawnpoints. You need at least " + spawnPoints.Count);
-                return;
-            }
+        LoadPlayer(0, 0, true);
 
-            CarController car = carScene.Instantiate<CarController>();
-            playersNode.AddChild(car);
+        for (int i = 1; i < GameState.maxPlayers; i++) {
 
-            car.GlobalTransform = spawnPoints[playerId];
-            car.SetLocalCar(isLocal);
+            GameState.players[i] = new PlayerData();
+            GameState.players[i].playerId = i;
+            GameState.players[i].playerName = GameState.playerName;
 
-            if (isLocal) {
-                localCar = car;
-            }
+            LoadPlayer(i, i, false);
 
-            cars[playerId] = car;
+        }   
 
-            if (MultiplayerManager.connected) {
+    }
 
-                MultiplayerManager.UpdateCarState(peerId, car.GlobalTransform, car.Steering);
+    private void LoadPlayer(int peerId = 0, int playerId = 0, bool isLocal = true) {
 
-            }
-
+        if (playerId >= spawnPoints.Count) {
+            GD.PrintErr("Not enough spawnpoints. You need at least " + spawnPoints.Count);
+            return;
         }
+
+        CarController car = carScene.Instantiate<CarController>();
+        playersNode.AddChild(car);
+
+        car.GlobalTransform = spawnPoints[playerId];
+        car.SetLocalCar(isLocal);
+        car.playerId = playerId;
+
+        if (isLocal) {
+            localCar = car;
+        }
+
+        cars[playerId] = car;
+
+
+        MultiplayerManager.UpdateCarState(peerId, car.GlobalTransform, car.Steering);
 
     }
 
     private void OnCarCrossedCheckpoint(CarController car, int checkpointSection) {
   
-        if (car == localCar) {
-
-            EmitSignal(SignalName.OnCheckpointCrossed, checkpointSection);
-
-        }
+        EmitSignal(SignalName.OnCheckpointCrossed, car, checkpointSection);
 
     }
 
