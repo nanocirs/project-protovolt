@@ -30,6 +30,21 @@ theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 26
 text = "Lap 0/3"
 
+[node name="Position" type="Label" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 25.525
+offset_top = -120.46
+offset_right = 117.525
+offset_bottom = -10.46
+grow_vertical = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 80
+text = "0"
+
 [node name="Scoreboard" type="Panel" parent="."]
 visible = false
 anchors_preset = 8

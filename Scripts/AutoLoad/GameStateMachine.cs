@@ -1,28 +1,28 @@
 using Godot;
 
-public enum GameState {
-	Intro = 0,
-	MainMenu = 1,
-	Loading = 2,
-	Playing = 3,
-}
-
 public partial class GameStateMachine : Singleton<GameStateMachine> {
+
+    public enum State {
+        Intro = 0,
+        MainMenu = 1,
+        Loading = 2,
+        Playing = 3,
+    }
 
 	private Node _entryScene = null;
 	private Node _currentScene = null;
 
-	public void Start(Node entryScene, GameState startingState) {
+	public void Start(Node entryScene, State startingState) {
 
 		_entryScene = entryScene;
 
 		switch (startingState) {
-			case GameState.Intro:
-			case GameState.MainMenu:
+			case State.Intro:
+			case State.MainMenu:
 				LoadScene("Menu/MainMenu.tscn");
 				break;
-			case GameState.Loading:
-			case GameState.Playing:
+			case State.Loading:
+			case State.Playing:
             	LoadScene("Maps/Game.tscn");
                 break;
 			default:

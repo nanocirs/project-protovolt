@@ -20,17 +20,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnCheckpointConfirmEventHandler(int confirmedCheckpoint);
     [Signal] public delegate void OnCarFinishedEventHandler(int playerId, string name, float raceTime);
 
-    public class PlayerData {
-        public string playerName;
-        public int playerId; 
-        public bool finished;
-        public int position;
-        public int currentCheckpoint;
-        public float raceTime;
-        public Transform3D carTransform;
-        public float carSteering;
-    }
-
     private const int SV_PEER_ID = 1;
 
     private const string DEFAULT_IP = "127.0.0.1";
@@ -38,11 +27,9 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private const int MAX_CONNECTIONS = 12;
 
     public static bool connected { get; private set; } = false;
-    public static int minimumPlayers { get; private set; } = 2;
+    public static int minimumPlayers { get; private set; } = 1;
 
-    public static Dictionary<int, PlayerData> players = new Dictionary<int, PlayerData>();
     public static int localPlayerId = -1;
-
     private static int playerIterator = 0;
 
     // @TODO: This doesn't belong here.
@@ -79,11 +66,11 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         connected = true;
 
-        players[SV_PEER_ID] = new PlayerData();
-        players[SV_PEER_ID].playerName = instance.playerName;
+        GameState.players[SV_PEER_ID] = new GameState.PlayerData();
+        GameState.players[SV_PEER_ID].playerName = instance.playerName;
 
         instance.EmitSignal(SignalName.OnServerCreated);
-        instance.EmitSignal(SignalName.OnPlayerConnected, SV_PEER_ID, players[SV_PEER_ID].playerName);
+        instance.EmitSignal(SignalName.OnPlayerConnected, SV_PEER_ID, GameState.players[SV_PEER_ID].playerName);
         
     }
 
@@ -111,19 +98,13 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     }
 
-    public static int GetTotalPlayers() {
-        
-        return players.Count;
-
-    }
-
     public static void DisconnectFromServer() {
 
         int playerId = instance.Multiplayer.GetUniqueId();
 
-        if (players.Count() > 0) {
+        if (GameState.players.Count() > 0) {
             
-            string peerName = players[playerId].playerName;
+            string peerName = GameState.players[playerId].playerName;
             instance.Multiplayer.MultiplayerPeer.Close();
 
             instance.EmitSignal(SignalName.OnPlayerDisconnected, playerId, peerName);
@@ -153,10 +134,10 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private void PeerDisconnected(long id) {
 
-        string peerName = players[(int)id].playerName;
+        string peerName = GameState.players[(int)id].playerName;
 
-        if (players[(int)id] != null) {
-            players.Remove((int)id);
+        if (GameState.players[(int)id] != null) {
+            GameState.players.Remove((int)id);
         }
 
         EmitSignal(SignalName.OnPlayerDisconnected, (int)id, peerName);
@@ -167,8 +148,8 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         int playerId = Multiplayer.GetUniqueId();
 
-        players[playerId] = new PlayerData();
-        players[playerId].playerName = instance.playerName;
+        GameState.players[playerId] = new GameState.PlayerData();
+        GameState.players[playerId].playerName = instance.playerName;
 
         EmitSignal(SignalName.OnPlayerConnected, playerId, playerName);
 
@@ -188,7 +169,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private void ServerDisconnected() {
 
-        players.Clear();
+        GameState.players.Clear();
 
         EmitSignal(SignalName.OnServerClosed);
 
@@ -203,8 +184,8 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         int playerId = Multiplayer.GetRemoteSenderId();
 
-        players[playerId] = new PlayerData();
-        players[playerId].playerName = newPlayerName;
+        GameState.players[playerId] = new GameState.PlayerData();
+        GameState.players[playerId].playerName = newPlayerName;
         
         EmitSignal(SignalName.OnPlayerConnected, playerId, newPlayerName);
 
@@ -220,8 +201,8 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     
             localPlayerId = playerIterator++;
 
-            RestartPlayer(players[SV_PEER_ID]);
-            players[SV_PEER_ID].playerId = 0;
+            RestartPlayer(GameState.players[SV_PEER_ID]);
+            GameState.players[SV_PEER_ID].playerId = 0;
 
             instance.CallDeferred("OnPlayerLoadedEmit", SV_PEER_ID, 0);
 
@@ -234,14 +215,14 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void NotifyPlayerLoaded() {
 
-        RestartPlayer(players[Multiplayer.GetRemoteSenderId()]);
+        RestartPlayer(GameState.players[Multiplayer.GetRemoteSenderId()]);
 
         int clientPlayerId = playerIterator++;
-        players[Multiplayer.GetRemoteSenderId()].playerId = clientPlayerId;
+        GameState.players[Multiplayer.GetRemoteSenderId()].playerId = clientPlayerId;
 
         RpcId(Multiplayer.GetRemoteSenderId(), "SetPlayerId", clientPlayerId);
 
-        foreach (var tuple in players) {
+        foreach (var tuple in GameState.players) {
             Rpc("UpdatePlayerList",tuple.Key, tuple.Value.playerId);
         }
 
@@ -261,8 +242,8 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void UpdatePlayerList(int peerId, int playerId) {
 
-        RestartPlayer(players[peerId]);
-        players[peerId].playerId = playerId;
+        RestartPlayer(GameState.players[peerId]);
+        GameState.players[peerId].playerId = playerId;
 
     }
 
@@ -284,7 +265,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         }
     }
 
-    private static void RestartPlayer(PlayerData player) {
+    private static void RestartPlayer(GameState.PlayerData player) {
         
         player.currentCheckpoint = 0;
         player.raceTime = 0.0f;
@@ -364,7 +345,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private void OnCheckpointCrossedEmit(int peerId) {
 
         if (instance.Multiplayer.GetUniqueId() == peerId) {
-            EmitSignal(SignalName.OnCheckpointCrossed, players[peerId].playerId, players[peerId].currentCheckpoint);
+            EmitSignal(SignalName.OnCheckpointCrossed, GameState.players[peerId].playerId, GameState.players[peerId].currentCheckpoint);
         }
 
     }
@@ -392,10 +373,10 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void OnCheckpointConfirmEmit(int peerId) {
 
-        players[peerId].currentCheckpoint++;
+        GameState.players[peerId].currentCheckpoint++;
 
         if (instance.Multiplayer.GetUniqueId() == peerId) {
-            EmitSignal(SignalName.OnCheckpointConfirm, players[peerId].currentCheckpoint);
+            EmitSignal(SignalName.OnCheckpointConfirm, GameState.players[peerId].currentCheckpoint);
         }
 
     }
@@ -451,18 +432,18 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void OnCarFinishedEmit(int peerId, float raceTime) {
 
-        players[peerId].finished = true;
-        players[peerId].raceTime = raceTime;
+        GameState.players[peerId].finished = true;
+        GameState.players[peerId].raceTime = raceTime;
 
-        EmitSignal(SignalName.OnCarFinished, players[peerId].playerId, players[peerId].playerName, raceTime);
+        EmitSignal(SignalName.OnCarFinished, GameState.players[peerId].playerId, GameState.players[peerId].playerName, raceTime);
 
     }
  
     // UPDATE CAR STATE
 
     public static void UpdateCarState(int peerId, Transform3D carTransform, float steering) {
-        players[peerId].carTransform = carTransform;
-        players[peerId].carSteering = steering;
+        GameState.players[peerId].carTransform = carTransform;
+        GameState.players[peerId].carSteering = steering;
     }
 
 #endregion

@@ -94,7 +94,7 @@ public partial class LobbyMenu : CanvasLayer {
             playersContainer.AddChild(playerName);
             playerRows[id] = playerName;
 
-            if (MultiplayerManager.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
+            if (GameState.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
                 playButton.Disabled = false;
             }
             else {
@@ -112,7 +112,7 @@ public partial class LobbyMenu : CanvasLayer {
             playerRows[id].QueueFree();
             playerRows.Remove(id);
 
-            if (MultiplayerManager.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
+            if (GameState.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
                 playButton.Disabled = false;
             }
             else {

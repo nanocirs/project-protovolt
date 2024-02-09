@@ -14,9 +14,9 @@ public partial class MapManager : Node {
 
     private Dictionary<int, CarController> cars = new Dictionary<int, CarController>();
     private List<Transform3D> spawnPoints = new List<Transform3D>();
-    private List<Checkpoint> checkpoints = new List<Checkpoint>();
+    public List<Checkpoint> checkpoints { get; private set; } = new List<Checkpoint>();
 
-    public int totalCheckpoints { get; private set; }= 0;
+    public int totalCheckpoints { get; private set; } = 0;
 
     public CarController localCar { get; private set; } = null;
 
@@ -46,7 +46,6 @@ public partial class MapManager : Node {
             foreach (Checkpoint checkpoint in checkpointsNode.GetChildren()) {
 
                 checkpoint.OnCarCrossedCheckpoint += OnCarCrossedCheckpoint;
-                
                 checkpoint.checkpointSection = checkpoints.Count;
 
                 checkpoints.Add(checkpoint);
@@ -80,7 +79,7 @@ public partial class MapManager : Node {
 
         }
 
-        foreach (var tuple in MultiplayerManager.players) {
+        foreach (var tuple in GameState.players) {
 
             if (cars.ContainsKey(tuple.Value.playerId)) {
             

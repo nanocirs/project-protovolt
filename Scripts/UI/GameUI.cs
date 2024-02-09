@@ -8,6 +8,7 @@ public partial class GameUI : CanvasLayer {
     private VBoxContainer scoreContainer = null;
     private Label countdownLabel = null;
     private Label lapsLabel = null;
+    private Label positionLabel = null;
 
     private bool isValidHud = true;
 
@@ -23,14 +24,21 @@ public partial class GameUI : CanvasLayer {
         scoreContainer = GetNodeOrNull<VBoxContainer>("Scoreboard/VBoxContainer/ScoreContainer");
         countdownLabel = GetNodeOrNull<Label>("Countdown");
         lapsLabel = GetNodeOrNull<Label>("Laps");
+        positionLabel = GetNodeOrNull<Label>("Position");
 
         CheckHud();
 
         if (isValidHud) {
             scoreboard.Hide();
+
             countdownLabel.Hide();
             countdownLabel.Text = "";
+
             lapsLabel.Text = "Lap 0/" + totalLaps;
+
+            positionLabel.Show();
+            positionLabel.Text = "";
+
         }
 
     }
@@ -80,6 +88,10 @@ public partial class GameUI : CanvasLayer {
 
     }
 
+    public void SetPosition(int position) {
+        positionLabel.Text = position.ToString();
+    }
+
     private void CheckHud() {
 
         if (scoreboard == null) {
@@ -107,6 +119,13 @@ public partial class GameUI : CanvasLayer {
 
             isValidHud = false;
             GD.PrintErr("Hud needs a Label called Laps.");
+
+        }
+
+        if (positionLabel == null) {
+
+            isValidHud = false;
+            GD.PrintErr("Hud needs a Label called Position.");
 
         }
 
