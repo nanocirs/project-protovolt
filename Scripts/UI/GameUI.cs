@@ -77,7 +77,8 @@ public partial class GameUI : CanvasLayer {
 
     public void AddScore(string name, float time) {
 
-        string formattedTime = string.Format("{0:00}:{1:00}", (int)(time / 60), (int)(time % 60));
+        //string formattedTime = string.Format("{0:00}:{1:00.000}", (int)(time / 60), time % 60);
+        string formattedTime = string.Format("{0:00}:{1:00}.{2:000}", (int)(time / 60), (int)(time % 60), (int)((time - Mathf.Floor(time)) * 1000));
 
         Label score = playerNameRowScene.Instantiate<Label>();
         score.Text = scorePosition + ". " + name + "    " + formattedTime;
