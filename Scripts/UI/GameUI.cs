@@ -12,11 +12,9 @@ public partial class GameUI : CanvasLayer {
 
     private bool isValidHud = true;
 
-    private int scorePosition = 1;
-    
-    private float countdownTimer = 0;
-
     public int totalLaps = 0;
+    private int scorePosition = 1;
+    private float countdownTimer = 0;
     
     public override void _Ready() {
 

@@ -134,7 +134,7 @@ public partial class GameManager : Node {
                 MultiplayerManager.CarFinished(currentTime);
             }
             else {
-                OnCarFinished(mapManager.localCar.id, offline_name, currentTime);
+                OnCarFinished(GameState.playerId, offline_name, currentTime);
             }
         }
 
@@ -175,7 +175,7 @@ public partial class GameManager : Node {
 
         for (int i = 0; i < playersByPosition.Count; i++) {
 
-            if (playersByPosition[i].playerId == mapManager.localCar.id) {
+            if (playersByPosition[i].playerId == GameState.playerId) {
 
                 return i + 1;
 
@@ -206,7 +206,7 @@ public partial class GameManager : Node {
 
         hud.AddScore(name, raceTime);
 
-        if (playerId == mapManager.localCar.id) {
+        if (playerId == GameState.playerId) {
 
             hud.EnableScoreboard();
 

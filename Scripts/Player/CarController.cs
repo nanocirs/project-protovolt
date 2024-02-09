@@ -17,8 +17,6 @@ public partial class CarController : VehicleBody3D
     [ExportGroup("Camera")]
     [Export] Camera3D camera = null;
 
-    public int id { get; private set; } = -1;
-
     private bool canRace = false;
     private bool isLocalCar = false;
     private bool isValidCar = true;
@@ -63,10 +61,6 @@ public partial class CarController : VehicleBody3D
         isLocalCar = isLocal;
         camera.Current = isLocal;
 
-    }
-
-    public void SetCarId(int carId) {
-        id = carId;
     }
 
     public void EnableEngine(bool enable) {

@@ -83,7 +83,7 @@ public partial class MapManager : Node {
 
             if (cars.ContainsKey(tuple.Value.playerId)) {
             
-                if (tuple.Value.playerId != localCar.id) {
+                if (tuple.Value.playerId != GameState.playerId) {
 
                     cars[tuple.Value.playerId].GlobalTransform = cars[tuple.Value.playerId].GlobalTransform.InterpolateWith(tuple.Value.carTransform, 13.0f * (float)delta);
                     cars[tuple.Value.playerId].Steering = tuple.Value.carSteering;
@@ -109,7 +109,6 @@ public partial class MapManager : Node {
             playersNode.AddChild(car);
 
             car.GlobalTransform = spawnPoints[playerId];
-            car.SetCarId(playerId);  
             car.SetLocalCar(isLocal);
 
             if (isLocal) {

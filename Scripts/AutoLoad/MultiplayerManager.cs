@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
@@ -29,7 +28,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     public static bool connected { get; private set; } = false;
     public static int minimumPlayers { get; private set; } = 1;
 
-    public static int localPlayerId = -1;
     private static int playerIterator = 0;
 
     // @TODO: This doesn't belong here.
@@ -199,7 +197,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         if (instance.Multiplayer.IsServer()) {
     
-            localPlayerId = playerIterator++;
+            GameState.playerId = playerIterator++;
 
             GameState.players[SV_PEER_ID].Restart();
             GameState.players[SV_PEER_ID].playerId = 0;
@@ -231,11 +229,11 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void SetPlayerId(int playerId) {
         
-        localPlayerId = playerId;
+        GameState.playerId = playerId;
 
         CallDeferred("OnPlayerLoadedEmit", SV_PEER_ID, 0);   // Let client know server is ready.
 
-        Rpc("EmitPlayerLoaded", localPlayerId);
+        Rpc("EmitPlayerLoaded", GameState.playerId);
 
     }
 
@@ -257,7 +255,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     private void OnPlayerLoadedEmit(int peerId, int playerId) {
         
-        if (localPlayerId == playerId) {
+        if (GameState.playerId == playerId) {
             EmitSignal(SignalName.OnPlayerLoaded, peerId, playerId, true);
         }
         else {
