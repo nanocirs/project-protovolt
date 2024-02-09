@@ -1,10 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://6vbph14vt13l"]
+[gd_scene load_steps=2 format=3 uid="uid://6vbph14vt13l"]
 
 [ext_resource type="Script" path="res://Scripts/Editor/EditorBox.cs" id="1_or8k8"]
-[ext_resource type="PackedScene" uid="uid://lqumqpbih6bq" path="res://Prefabs/Editor/SpawnPointBox.tscn" id="2_l1pge"]
 
 [node name="SpawnPoint" type="Node3D"]
-
-[node name="EditorBox" type="Node3D" parent="."]
 script = ExtResource("1_or8k8")
-boxScene = ExtResource("2_l1pge")
+size = Vector3(2.5, 4, 2.5)

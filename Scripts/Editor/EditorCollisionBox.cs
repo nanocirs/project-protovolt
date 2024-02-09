@@ -4,10 +4,11 @@ using Godot;
 public partial class EditorCollisionBox : CollisionShape3D {
 
     [Export] private Color color = new Color(0, 0.757f, 0.349f, 0.757f);
+    [Export] private bool VisibleInGame = false;
 
     public override void _Ready() {
 
-        if (Engine.IsEditorHint() || true) {
+        if (Engine.IsEditorHint() || VisibleInGame) {
 
             MeshInstance3D meshInstance = new MeshInstance3D();
             meshInstance.Mesh = new BoxMesh();
