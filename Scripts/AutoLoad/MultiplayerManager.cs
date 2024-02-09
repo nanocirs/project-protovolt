@@ -66,7 +66,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         connected = true;
 
-        GameState.players[SV_PEER_ID] = new GameState.PlayerData();
+        GameState.players[SV_PEER_ID] = new PlayerData();
         GameState.players[SV_PEER_ID].playerName = instance.playerName;
 
         instance.EmitSignal(SignalName.OnServerCreated);
@@ -148,7 +148,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         int playerId = Multiplayer.GetUniqueId();
 
-        GameState.players[playerId] = new GameState.PlayerData();
+        GameState.players[playerId] = new PlayerData();
         GameState.players[playerId].playerName = instance.playerName;
 
         EmitSignal(SignalName.OnPlayerConnected, playerId, playerName);
@@ -184,7 +184,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         int playerId = Multiplayer.GetRemoteSenderId();
 
-        GameState.players[playerId] = new GameState.PlayerData();
+        GameState.players[playerId] = new PlayerData();
         GameState.players[playerId].playerName = newPlayerName;
         
         EmitSignal(SignalName.OnPlayerConnected, playerId, newPlayerName);
@@ -201,7 +201,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     
             localPlayerId = playerIterator++;
 
-            RestartPlayer(GameState.players[SV_PEER_ID]);
+            GameState.players[SV_PEER_ID].Restart();
             GameState.players[SV_PEER_ID].playerId = 0;
 
             instance.CallDeferred("OnPlayerLoadedEmit", SV_PEER_ID, 0);
@@ -215,9 +215,9 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void NotifyPlayerLoaded() {
 
-        RestartPlayer(GameState.players[Multiplayer.GetRemoteSenderId()]);
-
         int clientPlayerId = playerIterator++;
+
+        GameState.players[Multiplayer.GetRemoteSenderId()].Restart();
         GameState.players[Multiplayer.GetRemoteSenderId()].playerId = clientPlayerId;
 
         RpcId(Multiplayer.GetRemoteSenderId(), "SetPlayerId", clientPlayerId);
@@ -242,7 +242,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void UpdatePlayerList(int peerId, int playerId) {
 
-        RestartPlayer(GameState.players[peerId]);
+        GameState.players[peerId].Restart();
         GameState.players[peerId].playerId = playerId;
 
     }
@@ -263,14 +263,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         else {
             EmitSignal(SignalName.OnPlayerLoaded, peerId, playerId, false);
         }
-    }
-
-    private static void RestartPlayer(GameState.PlayerData player) {
-        
-        player.currentCheckpoint = 0;
-        player.raceTime = 0.0f;
-        player.finished = false;
-        
     }
 
 #endregion

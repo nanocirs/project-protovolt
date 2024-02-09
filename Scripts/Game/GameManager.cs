@@ -22,7 +22,7 @@ public partial class GameManager : Node {
     // @TODO: Hay que sacar esto de aquí
     private string offline_name = "Client";
 
-    private List<GameState.PlayerData> playersByPosition = new List<GameState.PlayerData>();
+    private List<PlayerData> playersByPosition = new List<PlayerData>();
 
     public override void _Ready() {
         
@@ -195,7 +195,7 @@ public partial class GameManager : Node {
 
     }
 
-    private List<GameState.PlayerData> OrderPlayersByPosition() {
+    private List<PlayerData> OrderPlayersByPosition() {
 
         return GameState.players.Values.OrderByDescending(player => player.currentCheckpoint)
                                        .ThenBy(player => CalculateDistanceToNextCheckpoint(player.carTransform.Origin, currentCheckpoint)).ToList();
