@@ -15,6 +15,8 @@ public partial class GameManager : Node {
     private int currentPosition = 0;
     private int currentLap = 0;
     private int currentCheckpoint = 0;
+    private int confirmedCheckpoint = 0;
+
     private float currentTime = 0.0f;
 
     private bool isRaceStarted = false;
@@ -148,17 +150,27 @@ public partial class GameManager : Node {
 
             if (car.playerId == GameState.playerId) {
                 // Only add current checkpoint if they are crossed in order.
-                if (currentCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
-                    MultiplayerManager.CheckpointConfirm();
+                if (confirmedCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
+                    MultiplayerManager.CheckpointConfirm(1);
+                }
+                // Magia en caso de que se decida ir hacia atrás
+                else if (confirmedCheckpoint % mapManager.GetCheckpointsPerLap() > checkpointSection) {
+                    MultiplayerManager.CheckpointConfirm(-(confirmedCheckpoint % mapManager.GetCheckpointsPerLap() - checkpointSection));
+
                 }
 
             }
 
         }
         else {
-            if (GameState.players[car.playerId].currentCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
-                OnCheckpointConfirm(car.playerId, GameState.players[car.playerId].currentCheckpoint + 1);
+            if (GameState.players[car.playerId].confirmedCheckpoint % mapManager.GetCheckpointsPerLap() == checkpointSection) {
+                OnCheckpointConfirm(car.playerId, GameState.players[car.playerId].confirmedCheckpoint + 1);
             }
+            // Magia en caso de que se decida ir hacia atrás
+            else if (GameState.players[car.playerId].confirmedCheckpoint % mapManager.GetCheckpointsPerLap() > checkpointSection) {
+                OnCheckpointConfirm(car.playerId, GameState.players[car.playerId].confirmedCheckpoint - (GameState.players[car.playerId].confirmedCheckpoint % mapManager.GetCheckpointsPerLap() - checkpointSection)); 
+            }
+
         }
 
     }
@@ -167,17 +179,19 @@ public partial class GameManager : Node {
 
         if (!MultiplayerManager.connected) {
 
+            GameState.players[playerId].confirmedCheckpoint = confirmedCheckpoint;
             GameState.players[playerId].currentCheckpoint = confirmedCheckpoint;
 
         }
 
         // @TODO: rework to move currentCheckpoint to PlayerData players.
         currentCheckpoint = confirmedCheckpoint;
+        this.confirmedCheckpoint = confirmedCheckpoint;
 
         if (playerId == GameState.playerId) {
 
-            // Add lap when crossing first checkpoint of the list (i.e. finish line)      
-            if ((confirmedCheckpoint - 1) % mapManager.GetCheckpointsPerLap() == 0) {
+            // Add lap when crossing first checkpoint of the list (i.e. finish line) AND >>magic<< to add lap only when confirmed checkpoints are coherent with current lap.
+            if ((confirmedCheckpoint - 1) % mapManager.GetCheckpointsPerLap() == 0 && ((confirmedCheckpoint - 1) / mapManager.GetCheckpointsPerLap()) >= currentLap) {
                 OnLapUpdated();
             }
 
@@ -204,7 +218,7 @@ public partial class GameManager : Node {
     private List<PlayerData> OrderPlayersByPosition() {
 
         return GameState.players.Values.OrderByDescending(player => player.currentCheckpoint)
-                                       .ThenBy(player => CalculateDistanceToNextCheckpoint(player.carTransform.Origin, player.currentCheckpoint)).ToList();
+                                       .ThenBy(player => CalculateDistanceToNextCheckpoint(player.carTransform.Origin, player.confirmedCheckpoint)).ToList();
 
     }
 

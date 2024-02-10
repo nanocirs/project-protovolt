@@ -313,31 +313,32 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     // CHECKPOINT CONFIRM
 
-    public static void CheckpointConfirm() {
+    public static void CheckpointConfirm(int checkpointsAdded) {
 
         if (instance.Multiplayer.IsServer()) {
-            instance.Rpc("OnCheckpointConfirmEmit", SV_PEER_ID);
+            instance.Rpc("OnCheckpointConfirmEmit", SV_PEER_ID, checkpointsAdded);
         }
         else {
-            instance.RpcId(SV_PEER_ID, "NotifyCheckpointConfirm");
+            instance.RpcId(SV_PEER_ID, "NotifyCheckpointConfirm", checkpointsAdded);
         }
 
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void NotifyCheckpointConfirm() {
+    private void NotifyCheckpointConfirm(int checkpointsAdded) {
 
-        Rpc("OnCheckpointConfirmEmit", Multiplayer.GetRemoteSenderId());
+        Rpc("OnCheckpointConfirmEmit", Multiplayer.GetRemoteSenderId(), checkpointsAdded);
         
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void OnCheckpointConfirmEmit(int peerId) {
+    private void OnCheckpointConfirmEmit(int peerId, int checkpointsAdded) {
 
-        GameState.players[peerId].currentCheckpoint++;
+        GameState.players[peerId].confirmedCheckpoint += checkpointsAdded;
+        GameState.players[peerId].currentCheckpoint += checkpointsAdded;
 
         if (instance.Multiplayer.GetUniqueId() == peerId) {
-            EmitSignal(SignalName.OnCheckpointConfirm, GameState.players[peerId].playerId, GameState.players[peerId].currentCheckpoint);
+            EmitSignal(SignalName.OnCheckpointConfirm, GameState.players[peerId].playerId, GameState.players[peerId].confirmedCheckpoint);
         }
 
     }
