@@ -84,7 +84,7 @@ public partial class LobbyMenu : CanvasLayer {
         }
     }
 
-    private void OnPlayerConnected(int id, string name) {
+    private void OnPlayerConnected(int playerId, string name) {
         
         if (isSceneValid) {
 
@@ -92,7 +92,7 @@ public partial class LobbyMenu : CanvasLayer {
             playerName.Text = name;
 
             playersContainer.AddChild(playerName);
-            playerRows[id] = playerName;
+            playerRows[playerId] = playerName;
 
             if (GameState.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
                 playButton.Disabled = false;
@@ -105,12 +105,12 @@ public partial class LobbyMenu : CanvasLayer {
 
     }
 
-    private void OnPlayerDisconnected(int id, string name) {
+    private void OnPlayerDisconnected(int playerId, string name) {
 
         if (isSceneValid) {
 
-            playerRows[id].QueueFree();
-            playerRows.Remove(id);
+            playerRows[playerId].QueueFree();
+            playerRows.Remove(playerId);
 
             if (GameState.GetTotalPlayers() >= MultiplayerManager.minimumPlayers) {
                 playButton.Disabled = false;

@@ -3,6 +3,7 @@ using Godot;
 public class PlayerData {
 
     public int playerId; 
+    public int peerId;
     public string playerName;
     public int confirmedCheckpoint;
     public int currentCheckpoint;

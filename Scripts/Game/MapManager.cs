@@ -139,8 +139,7 @@ public partial class MapManager : Node {
 
         cars[playerId] = car;
 
-
-        MultiplayerManager.UpdateCarState(peerId, car.GlobalTransform, car.Steering);
+        MultiplayerManager.UpdateCarState(playerId, car.GlobalTransform, car.Steering);
 
     }
 
