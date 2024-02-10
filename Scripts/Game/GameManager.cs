@@ -6,11 +6,15 @@ public partial class GameManager : Node {
 
     [Export(PropertyHint.Range, "1,12")] private const int maxPlayers = 12;
     [Export] private bool countdownEnabled = true;
+    [Export] private PackedScene carScene = null;
 
     private const float COUNTDOWN_TIME = 3.0f;
 
     private GameUI hud;
     private MapManager mapManager;
+    private Node playersNode;
+
+    public CarController localCar { get; private set; } = null;
 
     private int currentPosition = 0;
     private int currentLap = 0;
@@ -20,15 +24,14 @@ public partial class GameManager : Node {
     private bool isRaceStarted = false;
     private bool isValidGame = true;
 
-    // @TODO: Hay que sacar esto de aquí
-    private string offline_name = "Client";
-
+    private Dictionary<int, CarController> cars = new Dictionary<int, CarController>();
     private List<PlayerData> playersByPosition = new List<PlayerData>();
 
     public override void _Ready() {
         
         hud = GetNodeOrNull<GameUI>("UI");
         mapManager = GetNodeOrNull<MapManager>("Map");
+        playersNode = GetNodeOrNull("Players");
 
         CheckGameManager();
 
@@ -73,19 +76,98 @@ public partial class GameManager : Node {
 
     }
 
-    private void OnPlayerLoaded(int peerId = 0, int playerId = 0, bool isLocal = true) {
+    public override void _PhysicsProcess(double delta) {
+
+        if (localCar == null) {
+            return;
+        }
 
         if (MultiplayerManager.connected) {
 
+            MultiplayerManager.SendPlayerTransform(localCar.GlobalTransform, localCar.Steering);
+
+            foreach (var tuple in GameState.players) {
+
+                if (cars.ContainsKey(tuple.Value.playerId) && tuple.Value.playerId != GameState.playerId) {
+
+                    cars[tuple.Value.playerId].GlobalTransform = cars[tuple.Value.playerId].GlobalTransform.InterpolateWith(tuple.Value.carTransform, 13.0f * (float)delta);
+                    cars[tuple.Value.playerId].Steering = tuple.Value.carSteering;
+
+                }
+
+            }
+
+        }
+        else {
+
+            foreach (var tuple in GameState.players) {
+                UpdateCarState(tuple.Key, cars[tuple.Value.playerId].GlobalTransform, cars[tuple.Value.playerId].Steering);
+            }
+
+        }
+
+    }
+
+    private void OnPlayerLoaded(int playerId = 0, bool isLocal = true) {
+
+        if (MultiplayerManager.connected) {
+
+            LoadPlayer(playerId, isLocal);
+            
             if (playerId == GameState.players.Count - 1) {
                 MultiplayerManager.PlayersReady();
             }
 
         }
         else {
+            SetupPlayers();
             StartCountdown();
         }
         
+    }
+
+    private void LoadPlayer(int playerId = 0, bool isLocal = true) {
+
+        if (playerId >= mapManager.GetSpawnPoints().Count) {
+            GD.PrintErr("Not enough spawnpoints. You need at least " + mapManager.GetSpawnPoints().Count);
+            return;
+        }
+
+        CarController car = carScene.Instantiate<CarController>();
+        playersNode.AddChild(car);
+
+        car.GlobalTransform = mapManager.GetSpawnPoints()[playerId];
+        car.SetLocalCar(isLocal);
+        car.playerId = playerId;
+
+        if (isLocal) {
+            localCar = car;
+        }
+
+        cars[playerId] = car;
+
+        UpdateCarState(playerId, car.GlobalTransform, car.Steering);
+
+    }
+
+    private void SetupPlayers() {
+
+        GameState.players[0] = new PlayerData();
+        GameState.players[0].playerId = 0;
+        GameState.players[0].playerName = GameState.playerName;
+
+        LoadPlayer(0, true);
+
+        for (int i = 1; i < GameState.maxPlayers; i++) {
+
+            GameState.players[i] = new PlayerData();
+            GameState.players[i].playerId = i;
+            GameState.players[i].playerName = GameState.playerName;
+
+            LoadPlayer(i, false);
+
+        }   
+
     }
 
     private async void StartCountdown() {
@@ -115,7 +197,7 @@ public partial class GameManager : Node {
     private void OnCountdownEnded() {
 
         hud.EndCountdown();
-        mapManager.EnableCar(true);
+        EnableCar(true);
         
         isRaceStarted = true;
 
@@ -129,14 +211,14 @@ public partial class GameManager : Node {
 
         if (currentLap > mapManager.totalLaps) {
 
-            mapManager.EnableCar(false);
+            EnableCar(false);
             isRaceStarted = false;
 
             if (MultiplayerManager.connected) {
                 MultiplayerManager.CarFinished(currentTime);
             }
             else {
-                OnCarFinished(GameState.playerId, offline_name, currentTime);
+                OnCarFinished(GameState.playerId, GameState.playerName, currentTime);
             }
         }
 
@@ -175,10 +257,12 @@ public partial class GameManager : Node {
 
     private void OnCheckpointConfirm(int playerId, int confirmedCheckpoint) {
 
-        if (!MultiplayerManager.connected) {
+        if (MultiplayerManager.connected) {
 
+
+        }
+        else {
             GameState.players[playerId].confirmedCheckpoint = confirmedCheckpoint;
-
         }
 
         if (playerId == GameState.playerId) {
@@ -234,6 +318,15 @@ public partial class GameManager : Node {
 
     }
 
+    public void EnableCar(bool enable) {
+        localCar.EnableEngine(enable);
+    }
+
+    public void UpdateCarState(int playerId, Transform3D carTransform, float steering) {
+        GameState.players[playerId].carTransform = carTransform;
+        GameState.players[playerId].carSteering = steering;
+    }
+
     private void CheckGameManager() {
 
         if (hud == null) {
@@ -250,6 +343,12 @@ public partial class GameManager : Node {
 
         }
 
+        if (playersNode == null) {
+
+            isValidGame = false;
+            GD.PrintErr("GameManager needs a Node called Players.");
+
+        }
     }
 
 }

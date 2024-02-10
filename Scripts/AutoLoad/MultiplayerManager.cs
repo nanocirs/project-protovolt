@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -14,7 +13,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnPlayerConnectErrorEventHandler();
 
     // Game lobby signals
-    [Signal] public delegate void OnPlayerLoadedEventHandler(int peerId, int playerId, bool isLocal);
+    [Signal] public delegate void OnPlayerLoadedEventHandler(int playerId, bool isLocal);
 
     // In-Game signals
     [Signal] public delegate void OnPlayersReadyEventHandler();
@@ -22,11 +21,10 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnCheckpointConfirmEventHandler(int playedId, int confirmedCheckpoint);
     [Signal] public delegate void OnCarFinishedEventHandler(int playerId, string name, float raceTime);
 
-    private const int SV_PEER_ID = 1;
-
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
     private const int MAX_CONNECTIONS = 12;
+    private const int SV_PEER_ID = 1;
 
     public static bool connected { get; private set; } = false;
     public static int minimumPlayers { get; private set; } = 1;
@@ -34,9 +32,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     private static int playerIterator = 0;
 
     private static Dictionary<int, int> peerIdplayerIdMap = new Dictionary<int, int>();
-
-    // @TODO: This doesn't belong here.
-    public string playerName = "QuePasaShavales";
 
     public override void _SingletonReady() {
 
@@ -213,9 +208,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void NotifyLoadMap(string mapPath) {
-
         GameStateMachine.instance.LoadScene(mapPath);
-
     }
 
 
@@ -231,7 +224,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
             GameState.playerId = playerId;
             GameState.players[playerId].Restart();
 
-            instance.CallDeferred("OnPlayerLoadedEmit", SV_PEER_ID, 0);
+            instance.CallDeferred("OnPlayerLoadedEmit", 0);
 
         }
         else {
@@ -259,7 +252,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         
         GameState.playerId = playerId;
 
-        CallDeferred("OnPlayerLoadedEmit", SV_PEER_ID, 0);   // Let client know server is ready.
+        CallDeferred("OnPlayerLoadedEmit", 0);   // Let client know server is ready.
 
         Rpc("EmitPlayerLoaded", GameState.playerId);
 
@@ -276,17 +269,17 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void EmitPlayerLoaded(int playerId) {
 
-        CallDeferred("OnPlayerLoadedEmit", Multiplayer.GetRemoteSenderId(), playerId);
+        CallDeferred("OnPlayerLoadedEmit", playerId);
 
     }
 
-    private void OnPlayerLoadedEmit(int peerId, int playerId) {
+    private void OnPlayerLoadedEmit(int playerId) {
         
         if (GameState.playerId == playerId) {
-            EmitSignal(SignalName.OnPlayerLoaded, peerId, playerId, true);
+            EmitSignal(SignalName.OnPlayerLoaded, playerId, true);
         }
         else {
-            EmitSignal(SignalName.OnPlayerLoaded, peerId, playerId, false);
+            EmitSignal(SignalName.OnPlayerLoaded, playerId, false);
         }
     }
 
@@ -297,11 +290,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     // PLAYERS READY
 
     public static void PlayersReady() {
-        GD.Print("------------------\nPlayer " + GameState.playerId + " playerlist:");
-
-        foreach (var player in GameState.players) {
-            GD.Print(player.Value.playerId);
-        }
 
         if (instance.Multiplayer.IsServer()) {
             instance.Rpc("OnPlayersReadyEmit");               
@@ -369,19 +357,10 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         GameState.players[playerId].confirmedCheckpoint += checkpointsAdded;
         GameState.players[playerId].currentCheckpoint += checkpointsAdded;
 
-        if (instance.Multiplayer.IsServer()) {
-            GD.Print("[SERVER]");
-        }
-        else {
-            GD.Print("[CLIENT]");
-        }
-        foreach (var tuple in peerIdplayerIdMap) {
-            GD.Print(tuple.Key + " " + tuple.Value);
-        }
-
         if (peerIdplayerIdMap[instance.Multiplayer.GetUniqueId()] == playerId) {
 
             EmitSignal(SignalName.OnCheckpointConfirm, playerId, GameState.players[playerId].confirmedCheckpoint);
+
         }
 
     }
@@ -443,13 +422,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
         EmitSignal(SignalName.OnCarFinished, GameState.players[playerId].playerId, GameState.players[playerId].playerName, raceTime);
 
-    }
- 
-    // UPDATE CAR STATE
-
-    public static void UpdateCarState(int playerId, Transform3D carTransform, float steering) {
-        GameState.players[playerId].carTransform = carTransform;
-        GameState.players[playerId].carSteering = steering;
     }
 
 #endregion
