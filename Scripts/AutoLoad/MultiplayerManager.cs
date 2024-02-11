@@ -297,13 +297,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void NotifyPlayersReady() {
-
-        Rpc("OnPlayersReadyEmit");               
-
-    }
-
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void OnPlayersReadyEmit() {
 

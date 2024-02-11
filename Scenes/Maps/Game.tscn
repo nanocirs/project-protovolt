@@ -1,12 +1,13 @@
-[gd_scene load_steps=14 format=3 uid="uid://dbw6jk3rg54of"]
+[gd_scene load_steps=15 format=3 uid="uid://dbw6jk3rg54of"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager/GameManagerLoader.cs" id="1_83673"]
 [ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="2_lhsx6"]
 [ext_resource type="PackedScene" uid="uid://ci6oujp44fghk" path="res://Prefabs/UI/GameUI.tscn" id="2_qfojx"]
-[ext_resource type="Script" path="res://Scripts/GameManager/MapManager.cs" id="3_qxy4m"]
+[ext_resource type="Script" path="res://Scripts/MapManager/MapManager.cs" id="3_qxy4m"]
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="5_6l5dy"]
 [ext_resource type="PackedScene" uid="uid://6vbph14vt13l" path="res://Prefabs/MapMechanics/SpawnPoint.tscn" id="6_jdfly"]
 [ext_resource type="PackedScene" uid="uid://cw25hefnu30uj" path="res://Prefabs/MapMechanics/Checkpoint.tscn" id="7_5lbm8"]
+[ext_resource type="PackedScene" uid="uid://byyrrgwqcu8w1" path="res://Prefabs/MapMechanics/PickUp.tscn" id="7_48hh3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_vwt13"]
 sky_top_color = Color(0, 0.701961, 1, 1)
@@ -120,5 +121,10 @@ transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 40.2496,
 
 [node name="Checkpoint6" parent="Map/Checkpoints" instance=ExtResource("7_5lbm8")]
 transform = Transform3D(1, 0, 1.74846e-07, 0, 1, 0, -1.74846e-07, 0, 1, 6.3948, 0, -69.8444)
+
+[node name="Pickables" type="Node" parent="Map"]
+
+[node name="PickUp" parent="Map/Pickables" instance=ExtResource("7_48hh3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 41.4215)
 
 [node name="UI" parent="." instance=ExtResource("2_qfojx")]

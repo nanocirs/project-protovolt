@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://byyrrgwqcu8w1"]
+
+[ext_resource type="Script" path="res://Scripts/MapMechanics/PickUp.cs" id="1_5bk6g"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_i8f4p"]
+height = 2.5
+radius = 1.1
+
+[sub_resource type="TorusMesh" id="TorusMesh_fco31"]
+
+[node name="PickUp" type="Node3D"]
+script = ExtResource("1_5bk6g")
+respawnTime = 15.0
+
+[node name="PickUpArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickUpArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+shape = SubResource("CylinderShape3D_i8f4p")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2, 0)
+mesh = SubResource("TorusMesh_fco31")
+
+[connection signal="body_entered" from="PickUpArea" to="." method="OnCarPickedUp"]
