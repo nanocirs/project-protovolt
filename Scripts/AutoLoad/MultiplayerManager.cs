@@ -17,21 +17,21 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     // In-Game signals
     [Signal] public delegate void OnPlayersReadyEventHandler();
-    [Signal] public delegate void OnCountdownEndedEventHandler();
+    [Signal] public delegate void OnRaceStartedEventHandler();
     [Signal] public delegate void OnCheckpointConfirmEventHandler(int playedId, int confirmedCheckpoint);
     [Signal] public delegate void OnCarFinishedEventHandler(int playerId, string name, float raceTime);
 
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
     private const int MAX_CONNECTIONS = 12;
-    private const int SV_PEER_ID = 1;
+    public const int SV_PEER_ID = 1;
 
     public static bool connected { get; private set; } = false;
     public static int minimumPlayers { get; private set; } = 1;
 
     private static int playerIterator = 0;
 
-    private static Dictionary<int, int> peerIdplayerIdMap = new Dictionary<int, int>();
+    public static Dictionary<int, int> peerIdplayerIdMap = new Dictionary<int, int>();
 
     public override void _SingletonReady() {
 
@@ -216,7 +216,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
 #region GAME_LOBBY
 
-    public static void NotifyMapLoaded() {
+    public static void PlayerLoaded() {
         if (instance.Multiplayer.IsServer()) {
 
             int playerId = peerIdplayerIdMap[SV_PEER_ID];
@@ -316,18 +316,18 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     // END COUNTDOWN
 
-    public static void EndCountdown() {
+    public static void StartRace() {
 
         if (instance.Multiplayer.IsServer()) {
-            instance.Rpc("OnCountdownEndedEmit");
+            instance.Rpc("OnRaceStartedEmit");
         }
 
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void OnCountdownEndedEmit() {
+    private void OnRaceStartedEmit() {
 
-        EmitSignal(SignalName.OnCountdownEnded);
+        EmitSignal(SignalName.OnRaceStarted);
 
     }
 
