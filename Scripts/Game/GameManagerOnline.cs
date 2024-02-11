@@ -37,7 +37,6 @@ public partial class GameManagerOnline : GameManagerBase {
         }  
 
     }
-    
 
     private void OnPlayerLoaded(int playerId = 0, bool isLocal = true) {
 

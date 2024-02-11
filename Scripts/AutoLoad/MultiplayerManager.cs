@@ -59,7 +59,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
             return;
 
         }
-        
+
         instance.Multiplayer.MultiplayerPeer = peer;
 
         connected = true;
@@ -295,10 +295,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         if (instance.Multiplayer.IsServer()) {
             instance.Rpc("OnPlayersReadyEmit");               
         }
-        else {
-            instance.RpcId(SV_PEER_ID, "NotifyPlayersReady");
-        }
-
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
