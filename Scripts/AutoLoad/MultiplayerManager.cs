@@ -59,6 +59,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
             return;
 
         }
+        
         instance.Multiplayer.MultiplayerPeer = peer;
 
         connected = true;

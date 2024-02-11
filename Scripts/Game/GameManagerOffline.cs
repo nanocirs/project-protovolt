@@ -25,6 +25,8 @@ public partial class GameManagerOffline : GameManagerBase {
 
     private void SetupPlayers() {
 
+        GameState.playerId = 0;
+        
         GameState.players[0] = new PlayerData();
         GameState.players[0].playerId = 0;
         GameState.players[0].playerName = GameState.playerName;

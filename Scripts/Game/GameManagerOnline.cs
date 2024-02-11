@@ -1,4 +1,5 @@
 using Godot;
+using System.Linq;
 
 public partial class GameManagerOnline : GameManagerBase {
 
@@ -11,6 +12,7 @@ public partial class GameManagerOnline : GameManagerBase {
         MultiplayerManager.instance.OnRaceStarted += Start;
         MultiplayerManager.instance.OnCarFinished += OnCarFinished;
         MultiplayerManager.instance.OnCheckpointConfirm += OnCheckpointConfirm;
+
         MultiplayerManager.PlayerLoaded();
 
     }
@@ -40,8 +42,8 @@ public partial class GameManagerOnline : GameManagerBase {
     private void OnPlayerLoaded(int playerId = 0, bool isLocal = true) {
 
         LoadPlayer(playerId, isLocal);
-        
-        if (playerId == GameState.players.Count - 1) {
+
+        if (GameState.players.Count(element => element.Value.ready) == GameState.players.Count) {
             MultiplayerManager.PlayersReady();
         }
         

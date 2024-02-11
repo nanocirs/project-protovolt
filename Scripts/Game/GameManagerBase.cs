@@ -83,6 +83,8 @@ public abstract partial class GameManagerBase : Node {
 
         UpdateCarState(playerId, car.GlobalTransform, car.Steering);
 
+        GameState.players[playerId].ready = true;
+
     }
 
     protected async void StartCountdown() {
