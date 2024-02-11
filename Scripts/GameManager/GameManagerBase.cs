@@ -4,13 +4,15 @@ using Godot;
 
 public abstract partial class GameManagerBase : Node {
 
-    public int maxPlayers = 12;
-    public bool countdownEnabled = true;
-    public PackedScene carScene = null;
+    [ExportGroup("Game Settings")]
+    [Export(PropertyHint.Range, "1,12")] public int maxPlayers = 12;
+    [Export] public bool countdownEnabled = true;
+    
+    public PackedScene carScene = ResourceLoader.Load<PackedScene>("res://Prefabs/Player/Car.tscn");
 
-    public GameUI hud;
-    public MapManager map;
-    public Node playersNode;
+    public GameUI hud = null;
+    public MapManager map = null;
+    public Node playersNode = null;
 
     protected const float COUNTDOWN_TIME = 3.0f;
     
@@ -33,8 +35,15 @@ public abstract partial class GameManagerBase : Node {
 
     public override void _Ready() {
 
-        if (!IsValidGame()) {
-            return;
+        if (hud == null || map == null || playersNode == null) {
+
+            hud = GetNodeOrNull<GameUI>("UI");
+            map = GetNodeOrNull<MapManager>("Map");
+            playersNode = GetNodeOrNull("Players");
+
+            if (!IsValidGame()) {
+                return;
+            }
         }
 
         checkpointsPerLap = map.GetCheckpointsPerLap();
@@ -199,6 +208,12 @@ public abstract partial class GameManagerBase : Node {
         if (playersNode == null) {
             isValidGame = false;
             GD.PrintErr("GameManager needs a Node called Players.");
+        }
+
+        if (carScene == null) {
+            isValidGame = false;
+            GD.PrintErr("GameManager needs a Car Scene set up.");
+
         }
 
         return isValidGame;

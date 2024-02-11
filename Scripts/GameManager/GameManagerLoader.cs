@@ -5,7 +5,7 @@ public partial class GameManagerLoader : Node {
     [ExportGroup("Game Settings")]
     [Export(PropertyHint.Range, "1,12")] private const int maxPlayers = 12;
     [Export] protected bool countdownEnabled = true;
-    [Export] private PackedScene carScene = null;
+    [Export] private PackedScene selectedCar = null;
 
     public override void _Ready() {
 
@@ -13,7 +13,6 @@ public partial class GameManagerLoader : Node {
 
         game.maxPlayers = maxPlayers;
         game.countdownEnabled = countdownEnabled;
-        game.carScene = carScene;
         game.hud = GetNodeOrNull<GameUI>("UI");
         game.map = GetNodeOrNull<MapManager>("Map");
         game.playersNode = GetNodeOrNull("Players");
