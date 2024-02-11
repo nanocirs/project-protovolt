@@ -48,7 +48,7 @@ public partial class GameManagerOnline : GameManagerBase {
     }
 
     protected override void StartRace() {
-        MultiplayerManager.StartRace();
+        MultiplayerManager.Start();
     }
 
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {

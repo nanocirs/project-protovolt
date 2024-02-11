@@ -38,23 +38,19 @@ public partial class CarController : VehicleBody3D
 
     public override void _PhysicsProcess(double delta) {
         
-        if (!isValidCar) {
+        if (!isValidCar || !isLocalCar) {
             return;
         }
 
-        if (isLocalCar) {
+        Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
+        
+        float acceleration = canRace ? Input.GetAxis("down", "up") : 0.0f;
 
-            Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
-            
-            float acceleration = canRace ? Input.GetAxis("down", "up") : 0.0f;
+        float rpm = wheelBackLeft.GetRpm();
+        wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
 
-            float rpm = wheelBackLeft.GetRpm();
-            wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
-
-            rpm = wheelBackRight.GetRpm();
-            wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
-            
-        }
+        rpm = wheelBackRight.GetRpm();
+        wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
 
     }
 

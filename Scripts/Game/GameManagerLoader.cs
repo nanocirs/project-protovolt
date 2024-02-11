@@ -2,8 +2,7 @@ using Godot;
 
 public partial class GameManagerLoader : Node {
 
-    public bool multiplayer = false;
-
+    [ExportGroup("Game Settings")]
     [Export(PropertyHint.Range, "1,12")] private const int maxPlayers = 12;
     [Export] protected bool countdownEnabled = true;
     [Export] private PackedScene carScene = null;

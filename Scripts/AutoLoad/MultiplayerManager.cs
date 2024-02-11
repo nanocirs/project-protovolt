@@ -316,7 +316,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
     // END COUNTDOWN
 
-    public static void StartRace() {
+    public static void Start() {
 
         if (instance.Multiplayer.IsServer()) {
             instance.Rpc("OnRaceStartedEmit");
