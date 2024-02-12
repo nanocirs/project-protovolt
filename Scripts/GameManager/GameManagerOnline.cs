@@ -55,8 +55,7 @@ public partial class GameManagerOnline : GameManagerBase {
     protected override void OnPickUpCollected(CarController car) {
 
         if (Multiplayer.IsServer()) {
-            PickUp.PickUpType pickUp = PickUp.GetRandomPickUp();
-            UpdatePlayerPickUp(car.playerId, pickUp);
+            UpdatePlayerPickUp(car.playerId, PickUp.GetRandomPickUp());
         }
         else if (GameState.playerId == car.playerId) {
             RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpCollected", car.playerId);
@@ -68,8 +67,7 @@ public partial class GameManagerOnline : GameManagerBase {
     private void NotifyPickUpCollected(int playerId) {
         
         if (Multiplayer.IsServer()) {
-            PickUp.PickUpType pickUp = PickUp.GetRandomPickUp();
-            RpcId(Multiplayer.GetRemoteSenderId(), "UpdatePickUp", playerId, (int)pickUp);
+            RpcId(Multiplayer.GetRemoteSenderId(), "UpdatePickUp", playerId, (int)PickUp.GetRandomPickUp());
         }
 
     }
@@ -78,6 +76,32 @@ public partial class GameManagerOnline : GameManagerBase {
     private void UpdatePickUp(int playerId, PickUp.PickUpType pickUp) {
 
         UpdatePlayerPickUp(playerId, pickUp);
+
+    }
+
+    protected override void OnPickUpUsed(CarController car)
+    {
+        if (Multiplayer.IsServer()) {
+            RemovePlayerPickUp(car.playerId);
+        }
+        else if (GameState.playerId == car.playerId) {
+            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpUsed", car.playerId);
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyPickUpUsed(int playerId) {
+        
+        if (Multiplayer.IsServer()) {
+            RpcId(Multiplayer.GetRemoteSenderId(), "RemovePickUp", playerId);
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RemovePickUp(int playerId) {
+
+        RemovePlayerPickUp(playerId);
 
     }
 

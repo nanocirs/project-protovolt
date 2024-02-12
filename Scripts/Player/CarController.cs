@@ -2,6 +2,8 @@ using Godot;
 
 public partial class CarController : VehicleBody3D
 {
+    [Signal] public delegate void OnCarPressedUseEventHandler(CarController car);
+
     [ExportGroup("Vehicle settings")]
     [Export] float steerLimit = 30.0f;
     [Export] float maxRpm = 500.0f;
@@ -26,7 +28,6 @@ public partial class CarController : VehicleBody3D
     private bool isBrakePressed = false;
     private bool isSteerLeftPressed = false;
     private bool isSteerRightPressed = false;
-    private bool isUsePressed = false;
 
     public override void _Ready() {
 
@@ -46,6 +47,7 @@ public partial class CarController : VehicleBody3D
         InputManager.instance.OnDownInput += (value) => isBrakePressed = value;
         InputManager.instance.OnLeftInput += (value) => isSteerLeftPressed = value;
         InputManager.instance.OnRightInput += (value) => isSteerRightPressed = value;
+        InputManager.instance.OnUseInput += (value) => EmitSignal(SignalName.OnCarPressedUse, this);
 
     }
 
