@@ -11,7 +11,7 @@ public class PlayerData {
     public int confirmedCheckpoint;
     public int currentCheckpoint;
     public bool hasPickUp;
-    public PickUp.PickUpType pickUp;
+    public Pickable.PickUpType pickUp;
     public Transform3D carTransform;
     public float carSteering;
 

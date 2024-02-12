@@ -1,12 +1,15 @@
 using System;
 using Godot;
 
-public partial class PickUp : Node3D {
+public partial class Pickable : Node3D {
 
     public enum PickUpType {
         Turbo = 0,
         Oil = 1,
         StickerLaugh = 2,
+        Missile = 3,
+        Bomb = 4,
+        Disabler = 5,
     }
 
     [Signal] public delegate void OnCarConsumedPickUpEventHandler(CarController car);

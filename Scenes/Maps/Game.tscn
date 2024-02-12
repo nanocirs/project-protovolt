@@ -3,11 +3,11 @@
 [ext_resource type="Script" path="res://Scripts/GameManager/GameManagerLoader.cs" id="1_83673"]
 [ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="2_lhsx6"]
 [ext_resource type="PackedScene" uid="uid://ci6oujp44fghk" path="res://Prefabs/UI/GameUI.tscn" id="2_qfojx"]
-[ext_resource type="Script" path="res://Scripts/MapManager/MapManager.cs" id="3_qxy4m"]
+[ext_resource type="Script" path="res://Scripts/Map/MapManager.cs" id="3_qxy4m"]
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="5_6l5dy"]
-[ext_resource type="PackedScene" uid="uid://6vbph14vt13l" path="res://Prefabs/MapMechanics/SpawnPoint.tscn" id="6_jdfly"]
-[ext_resource type="PackedScene" uid="uid://cw25hefnu30uj" path="res://Prefabs/MapMechanics/Checkpoint.tscn" id="7_5lbm8"]
-[ext_resource type="PackedScene" uid="uid://byyrrgwqcu8w1" path="res://Prefabs/MapMechanics/PickUp.tscn" id="7_48hh3"]
+[ext_resource type="PackedScene" uid="uid://6vbph14vt13l" path="res://Prefabs/Map/SpawnPoint.tscn" id="6_jdfly"]
+[ext_resource type="PackedScene" uid="uid://cw25hefnu30uj" path="res://Prefabs/Map/Checkpoint.tscn" id="7_5lbm8"]
+[ext_resource type="PackedScene" uid="uid://byyrrgwqcu8w1" path="res://Prefabs/Map/Pickable.tscn" id="7_48hh3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_vwt13"]
 sky_top_color = Color(0, 0.701961, 1, 1)

@@ -67,7 +67,7 @@ public partial class GameUI : CanvasLayer {
         
     }
 
-    public void SetItem(PickUp.PickUpType item) {
+    public void SetItem(Pickable.PickUpType item) {
         itemLabel.Text = item.ToString();
     }
 

@@ -14,7 +14,7 @@ public partial class MapManager : Node {
 
     private List<Transform3D> spawnPoints = new List<Transform3D>();
     public List<Checkpoint> checkpoints { get; private set; } = new List<Checkpoint>();
-    public List<PickUp> pickUps { get; private set; } = new List<PickUp>();
+    public List<Pickable> pickUps { get; private set; } = new List<Pickable>();
 
     public int totalCheckpoints { get; private set; } = 0;
 
@@ -32,7 +32,7 @@ public partial class MapManager : Node {
 
         if (pickablesContainer != null) {
 
-            foreach (PickUp pickUp in pickablesContainer.GetChildren()) {
+            foreach (Pickable pickUp in pickablesContainer.GetChildren()) {
                 pickUp.OnCarConsumedPickUp += OnCarConsumedPickUp;
             }
 

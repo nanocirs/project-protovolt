@@ -66,9 +66,7 @@ public abstract partial class GameManagerBase : Node {
         
         if (isRaceStarted) {
             currentTime += (float)delta;
-
             UpdatePosition();
-
         }
 
     }
@@ -104,11 +102,9 @@ public abstract partial class GameManagerBase : Node {
 
         hud.SetPosition(GetRacePosition());
 
-        if (countdownEnabled) {
-            
+        if (countdownEnabled) {        
             hud.StartCountdown();
             await ToSignal(GetTree().CreateTimer(COUNTDOWN_TIME), SceneTreeTimer.SignalName.Timeout);
-
         }
         
         StartRace();
@@ -124,7 +120,7 @@ public abstract partial class GameManagerBase : Node {
 
     }
     
-    protected void UpdatePlayerPickUp(int playerId, PickUp.PickUpType pickUp) {
+    protected void UpdatePlayerPickUp(int playerId, Pickable.PickUpType pickUp) {
 
         GameState.players[playerId].pickUp = pickUp;
         GameState.players[playerId].hasPickUp = true;
@@ -147,9 +143,7 @@ public abstract partial class GameManagerBase : Node {
 
     protected void OnLapUpdated() {
 
-        currentLap++;
-
-        hud.UpdateLap(currentLap);
+        hud.UpdateLap(++currentLap);
 
         if (currentLap > map.totalLaps) {
 

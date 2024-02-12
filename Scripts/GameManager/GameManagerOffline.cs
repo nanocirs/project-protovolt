@@ -51,12 +51,14 @@ public partial class GameManagerOffline : GameManagerBase {
 
     protected override void OnPickUpCollected(CarController car) {
 
-        PickUp.PickUpType pickUp = PickUp.GetRandomPickUp();
+        Pickable.PickUpType pickUp = Pickable.GetRandomPickUp();
         UpdatePlayerPickUp(car.playerId, pickUp);
 
     }
 
     protected override void OnPickUpUsed(CarController car) {
+
+        PickUpEffect.Activate(car, GameState.players[car.playerId].pickUp);
         RemovePlayerPickUp(car.playerId);
     }
 

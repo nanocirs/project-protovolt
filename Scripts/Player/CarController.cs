@@ -81,4 +81,21 @@ public partial class CarController : VehicleBody3D
         canRace = enable;
     }
 
+    public async void EffectTurbo() {
+        
+        maxRpm *= 5.0f;
+        maxTorque *= 3.0f;
+        Mass *= 3.0f;
+
+        await ToSignal(GetTree().CreateTimer(PickUpEffect.turboDuration), SceneTreeTimer.SignalName.Timeout);
+
+        maxRpm /= 5.0f;
+        maxTorque /= 3.0f;
+        Mass /= 3.0f;
+    }
+
+    public void EffectOil() {}
+
+    public void EffectStickerLaugh() {}
+
 }
