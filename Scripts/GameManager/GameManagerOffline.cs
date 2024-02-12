@@ -49,16 +49,11 @@ public partial class GameManagerOffline : GameManagerBase {
         Start();
     }
 
-    protected override void OnPickUpConsumed(CarController car) {
-         
-        PickUp.PickUpType pickUpType = PickUp.GetRandomPickUp();
+    protected override void OnPickUpCollected(CarController car) {
 
-        GD.Print(car.playerId + " picked up: " + pickUpType);
-
-        GameState.players[car.playerId].hasPickUp = true;
-        GameState.players[car.playerId].pickUp = pickUpType;
-    
- 
+        PickUp.PickUpType pickUp = PickUp.GetRandomPickUp();
+        UpdatePlayerPickUp(car.playerId, pickUp);
+        
     }
 
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {

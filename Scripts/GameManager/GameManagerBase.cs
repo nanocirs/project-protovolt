@@ -30,7 +30,7 @@ public abstract partial class GameManagerBase : Node {
 
     protected int checkpointsPerLap = 0;
 
-    protected abstract void OnPickUpConsumed(CarController car);
+    protected abstract void OnPickUpCollected(CarController car);
     protected abstract void OnCheckpointCrossed(CarController car, int checkpointSection);
     protected abstract void StartRace();
 
@@ -52,7 +52,7 @@ public abstract partial class GameManagerBase : Node {
         hud.totalLaps = map.totalLaps;
         hud.UpdateLap(0);
 
-        map.OnPickUpConsumed += OnPickUpConsumed;
+        map.OnPickUpConsumed += OnPickUpCollected;
         map.OnCheckpointCrossed += OnCheckpointCrossed;
 
     }
@@ -122,6 +122,16 @@ public abstract partial class GameManagerBase : Node {
 
     }
     
+    protected void UpdatePlayerPickUp(int playerId, PickUp.PickUpType pickUp) {
+
+        GameState.players[playerId].hasPickUp = true;
+        GameState.players[playerId].pickUp = pickUp;
+
+        if (playerId == GameState.playerId) {
+            hud.SetItem(pickUp);
+        }
+
+    }
 
     protected void OnLapUpdated() {
 
