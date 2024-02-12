@@ -10,6 +10,8 @@ public class PlayerData {
     public float raceTime;
     public int confirmedCheckpoint;
     public int currentCheckpoint;
+    public bool hasPickUp;
+    public PickUp.PickUpType pickUp;
     public Transform3D carTransform;
     public float carSteering;
 

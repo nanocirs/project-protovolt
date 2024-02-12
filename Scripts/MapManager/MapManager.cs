@@ -3,30 +3,44 @@ using Godot;
 
 public partial class MapManager : Node {
 
+    [Signal] public delegate void OnPickUpConsumedEventHandler(CarController car);
     [Signal] public delegate void OnCheckpointCrossedEventHandler(CarController car, int checkpointSection);
 
     [Export] public int totalLaps { get; private set; } = 3;
 
-    private Node spawnPointsNode;
-    private Node checkpointsNode;
+    private Node spawnPointsContainer;
+    private Node checkpointsContainer;
+    private Node pickablesContainer;
 
     private List<Transform3D> spawnPoints = new List<Transform3D>();
     public List<Checkpoint> checkpoints { get; private set; } = new List<Checkpoint>();
+    public List<PickUp> pickUps { get; private set; } = new List<PickUp>();
 
     public int totalCheckpoints { get; private set; } = 0;
 
-    private bool isValidLevel = true;
+    private bool isValidMap = true;
     
     public override void _Ready() {
 
-        spawnPointsNode = GetNodeOrNull("SpawnPoints");
-        checkpointsNode = GetNodeOrNull("Checkpoints");
+        spawnPointsContainer = GetNodeOrNull("SpawnPoints");
+        checkpointsContainer = GetNodeOrNull("Checkpoints");
+        pickablesContainer = GetNodeOrNull("Pickables");
         
-        CheckMapManager();
+        if (!IsValidMap()) {
+            return;
+        }
 
-        if (spawnPointsNode != null) {
-            
-            foreach (Node3D spawnPoint in spawnPointsNode.GetChildren()) {
+        if (pickablesContainer != null) {
+
+            foreach (PickUp pickUp in pickablesContainer.GetChildren()) {
+                pickUp.OnCarConsumedPickUp += OnCarConsumedPickUp;
+            }
+
+        }
+
+        if (spawnPointsContainer != null) {
+
+            foreach (Node3D spawnPoint in spawnPointsContainer.GetChildren()) {
                 spawnPoints.Add(spawnPoint.GlobalTransform);
             }
 
@@ -35,21 +49,21 @@ public partial class MapManager : Node {
             spawnPoints.Add(new Transform3D());
         }
 
-        if (isValidLevel) {
+        foreach (Checkpoint checkpoint in checkpointsContainer.GetChildren()) {
 
-            foreach (Checkpoint checkpoint in checkpointsNode.GetChildren()) {
+            checkpoint.OnCarCrossedCheckpoint += OnCarCrossedCheckpoint;
+            checkpoint.checkpointSection = GetCheckpointsPerLap();
 
-                checkpoint.OnCarCrossedCheckpoint += OnCarCrossedCheckpoint;
-                checkpoint.checkpointSection = checkpoints.Count;
+            checkpoints.Add(checkpoint);
 
-                checkpoints.Add(checkpoint);
-
-                totalCheckpoints = checkpoints.Count * totalLaps;
-
-            }
+            totalCheckpoints = GetCheckpointsPerLap() * totalLaps;
 
         }
 
+    }
+
+    private void OnCarConsumedPickUp(CarController car) {
+        EmitSignal(SignalName.OnPickUpConsumed, car);
     }
 
     private void OnCarCrossedCheckpoint(CarController car, int checkpointSection) {
@@ -64,20 +78,22 @@ public partial class MapManager : Node {
         return spawnPoints;
     }
 
-    private void CheckMapManager() {
+    private bool IsValidMap() {
 
-        if (checkpointsNode == null) {
-
-            isValidLevel = false;
-            GD.PrintErr("Map needs a Node called Checkpoints.");
-           
+        if (checkpointsContainer == null) {
+            isValidMap = false;
+            GD.PrintErr("Map needs a Node called Checkpoints.");   
         }
 
-        if (spawnPointsNode == null) {
-            
-            GD.PushWarning("SpawnPoints not set. Generating a SpawnPoint in origin.");
-
+        if (pickablesContainer == null) {
+            GD.PushWarning("Pickables Node not set.");
         }
+
+        if (spawnPointsContainer == null) {
+            GD.PushWarning("SpawnPoints Node not set. Generating a SpawnPoint in origin.");
+        }
+
+        return isValidMap;
 
     }
 

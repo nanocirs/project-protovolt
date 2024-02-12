@@ -1,8 +1,16 @@
+using System;
 using Godot;
 
 public partial class PickUp : Node3D {
 
-    [Signal] public delegate void OnPickUpConsumedEventHandler(CarController car);
+    public enum PickUpType {
+        Turbo = 0,
+        Oil = 1,
+        StickerLaugh = 2,
+    }
+
+    [Signal] public delegate void OnCarConsumedPickUpEventHandler(CarController car);
+
     [Export] float respawnTime = 10.0f;
 
     private Area3D pickUpArea = null;
@@ -26,6 +34,7 @@ public partial class PickUp : Node3D {
 
         await ToSignal(GetTree().CreateTimer(respawnTime), SceneTreeTimer.SignalName.Timeout);
         Respawn();
+
     }
 
     public void Respawn() {
@@ -37,14 +46,19 @@ public partial class PickUp : Node3D {
 
         CarController car = carBody as CarController;
 
-        if (car.canPickUp) {
+        if (!GameState.players[car.playerId].hasPickUp) {
             CallDeferred("Consume");
-            EmitSignal(SignalName.OnPickUpConsumed, car);
-
-            car.canPickUp = false;
-
+            EmitSignal(SignalName.OnCarConsumedPickUp, car);
         }
-        
+    
+    }
+
+    public static PickUpType GetRandomPickUp() {
+
+        int typeCount = Enum.GetNames(typeof(PickUpType)).Length;
+
+        return (PickUpType)GD.RandRange(0, typeCount - 1);
+
     }
 
 }

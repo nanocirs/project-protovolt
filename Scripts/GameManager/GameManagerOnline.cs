@@ -52,6 +52,34 @@ public partial class GameManagerOnline : GameManagerBase {
         MultiplayerManager.Start();
     }
 
+    protected override void OnPickUpConsumed(CarController car) {
+
+        if (Multiplayer.IsServer()) {
+            UpdatePickUp(car.playerId, PickUp.GetRandomPickUp());
+        }
+        else if (GameState.playerId == car.playerId) {
+            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpConsumed", car.playerId);
+        }
+    
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyPickUpConsumed(int playerId) {
+        
+        if (Multiplayer.IsServer()) {
+            RpcId(Multiplayer.GetRemoteSenderId(), "UpdatePickUp", playerId, (int)PickUp.GetRandomPickUp());
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void UpdatePickUp(int playerId, PickUp.PickUpType pickUpType) {
+
+        GameState.players[playerId].hasPickUp = true;
+        GameState.players[playerId].pickUp = pickUpType;
+
+    }
+
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {
 
         if (car.playerId == GameState.playerId) {

@@ -49,6 +49,18 @@ public partial class GameManagerOffline : GameManagerBase {
         Start();
     }
 
+    protected override void OnPickUpConsumed(CarController car) {
+         
+        PickUp.PickUpType pickUpType = PickUp.GetRandomPickUp();
+
+        GD.Print(car.playerId + " picked up: " + pickUpType);
+
+        GameState.players[car.playerId].hasPickUp = true;
+        GameState.players[car.playerId].pickUp = pickUpType;
+    
+ 
+    }
+
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {
 
         if (GameState.players[car.playerId].confirmedCheckpoint % checkpointsPerLap == checkpointSection) {

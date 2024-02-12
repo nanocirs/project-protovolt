@@ -18,7 +18,6 @@ public partial class CarController : VehicleBody3D
     [Export] Camera3D camera = null;
 
     public int playerId = -1;
-    public bool canPickUp = true;
     private bool canRace = false;
     private bool isLocalCar = false;
     private bool isValidCar = true;

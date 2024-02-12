@@ -30,6 +30,7 @@ public abstract partial class GameManagerBase : Node {
 
     protected int checkpointsPerLap = 0;
 
+    protected abstract void OnPickUpConsumed(CarController car);
     protected abstract void OnCheckpointCrossed(CarController car, int checkpointSection);
     protected abstract void StartRace();
 
@@ -51,6 +52,7 @@ public abstract partial class GameManagerBase : Node {
         hud.totalLaps = map.totalLaps;
         hud.UpdateLap(0);
 
+        map.OnPickUpConsumed += OnPickUpConsumed;
         map.OnCheckpointCrossed += OnCheckpointCrossed;
 
     }
