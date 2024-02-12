@@ -1,4 +1,3 @@
-using System.Dynamic;
 using Godot;
 
 public partial class CarController : VehicleBody3D
@@ -18,9 +17,16 @@ public partial class CarController : VehicleBody3D
     [Export] Camera3D camera = null;
 
     public int playerId = -1;
+
     private bool canRace = false;
     private bool isLocalCar = false;
     private bool isValidCar = true;
+
+    private bool isAcceleratePressed = false;
+    private bool isBrakePressed = false;
+    private bool isSteerLeftPressed = false;
+    private bool isSteerRightPressed = false;
+    private bool isUsePressed = false;
 
     public override void _Ready() {
 
@@ -32,7 +38,14 @@ public partial class CarController : VehicleBody3D
 
             GD.PrintErr("There are unassigned wheels in Car");
 
+            return;
+
         }
+
+        InputManager.instance.OnUpInput += (value) => isAcceleratePressed = value;
+        InputManager.instance.OnDownInput += (value) => isBrakePressed = value;
+        InputManager.instance.OnLeftInput += (value) => isSteerLeftPressed = value;
+        InputManager.instance.OnRightInput += (value) => isSteerRightPressed = value;
 
     }
 
@@ -41,10 +54,12 @@ public partial class CarController : VehicleBody3D
         if (!isValidCar || !isLocalCar) {
             return;
         }
-
-        Steering = Mathf.Lerp(Steering, Input.GetAxis("right", "left") * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
         
-        float acceleration = canRace ? Input.GetAxis("down", "up") : 0.0f;
+        float steeringAxis = isSteerLeftPressed || isSteerRightPressed ? Input.GetAxis("right", "left") : 0.0f;
+        float accelerateAxis = isAcceleratePressed || isBrakePressed ? Input.GetAxis("down", "up") : 0.0f;
+
+        Steering = Mathf.Lerp(Steering, steeringAxis * steerLimit * 2 * Mathf.Pi / 360.0f, 5.0f * (float)delta);
+        float acceleration = canRace ? accelerateAxis : 0.0f;
 
         float rpm = wheelBackLeft.GetRpm();
         wheelBackLeft.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);

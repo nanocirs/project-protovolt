@@ -6,6 +6,7 @@ public partial class InputManager : Singleton<InputManager> {
     [Signal] public delegate void OnRightInputEventHandler(bool isPressed);
     [Signal] public delegate void OnUpInputEventHandler(bool isPressed);
     [Signal] public delegate void OnDownInputEventHandler(bool isPressed);
+    [Signal] public delegate void OnUseInputEventHandler(bool isPressed);
     [Signal] public delegate void OnEscInputEventHandler(bool isPressed);
 
     public override void _Input(InputEvent @event) {
@@ -21,6 +22,9 @@ public partial class InputManager : Singleton<InputManager> {
 
         if (@event.IsActionPressed("down"))         EmitSignal(SignalName.OnDownInput, true);
         else if (@event.IsActionReleased("down"))   EmitSignal(SignalName.OnDownInput, false);
+        
+        if (@event.IsActionPressed("use"))          EmitSignal(SignalName.OnUseInput, true);
+        else if (@event.IsActionPressed("use"))     EmitSignal(SignalName.OnUseInput, false);
 
         if (@event.IsActionPressed("esc"))          EmitSignal(SignalName.OnEscInput, true);
         else if (@event.IsActionPressed("esc"))     EmitSignal(SignalName.OnEscInput, false);
