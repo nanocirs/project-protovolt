@@ -17,6 +17,7 @@ public class PlayerData {
     public float carSteering;
 
     public void Restart() {
+        car = null;
         confirmedCheckpoint = 0;
         currentCheckpoint = 0;
         raceTime = 0.0f;

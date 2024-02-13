@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Car" load_steps=2 format=3 uid="uid://xwciku07mrd6"]
+
+[ext_resource type="Script" path="res://Scripts/Resources/Car.cs" id="1_34fq0"]
+
+[resource]
+script = ExtResource("1_34fq0")
+steerLimit = 30.0
+maxRpm = 8000.0
+maxTorque = 300.0
+mass = 90.0
+traction = 0

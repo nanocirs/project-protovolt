@@ -1,13 +1,18 @@
 using Godot;
 
-public partial class CarController : VehicleBody3D
-{
+public partial class CarController : VehicleBody3D {
+
+    public enum Traction {
+        RWD = 0,
+        FWD = 1,
+        AWD = 2,
+    }
+
     [Signal] public delegate void OnCarPressedUseEventHandler(CarController car);
 
-    [ExportGroup("Vehicle settings")]
-    [Export] float steerLimit = 30.0f;
-    [Export] float maxRpm = 500.0f;
-    [Export] float maxTorque = 200.0f;
+    private float steerLimit = 30.0f;
+    private float maxRpm = 500.0f;
+    private float maxTorque = 200.0f;
 
     VehicleWheel3D wheelBackLeft = null;
     VehicleWheel3D wheelBackRight = null;
@@ -60,6 +65,17 @@ public partial class CarController : VehicleBody3D
 
         rpm = wheelBackRight.GetRpm();
         wheelBackRight.EngineForce = acceleration * maxTorque * (1.0f - rpm / maxRpm);
+
+    }
+
+    public void SetCarBrand(string brandPath = "res://Resources/Cars/CarBase.tres") {
+        
+        Car car = ResourceLoader.Load<Car>(brandPath);
+
+        steerLimit = car.steerLimit;
+        maxRpm = car.maxRpm;
+        maxTorque = car.maxTorque;
+        Mass = car.mass;
 
     }
 

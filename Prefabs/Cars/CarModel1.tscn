@@ -25,9 +25,6 @@ center_of_mass_mode = 1
 center_of_mass = Vector3(0, -0.2, 0)
 continuous_cd = true
 script = ExtResource("1_5bksr")
-steerLimit = 15.0
-maxRpm = 5500.0
-maxTorque = 600.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("ConvexPolygonShape3D_8atei")

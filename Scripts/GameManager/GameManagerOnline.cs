@@ -52,6 +52,8 @@ public partial class GameManagerOnline : GameManagerBase {
         MultiplayerManager.Start();
     }
 
+    //
+
     protected override void OnPickUpCollected(CarController car) {
 
         if (Multiplayer.IsServer()) {
@@ -79,6 +81,8 @@ public partial class GameManagerOnline : GameManagerBase {
 
     }
 
+    //
+
     protected override void OnPickUpUsed(CarController car)
     {
         if (Multiplayer.IsServer()) {
@@ -104,6 +108,8 @@ public partial class GameManagerOnline : GameManagerBase {
         RemovePlayerPickUp(playerId);
 
     }
+    
+    //
 
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {
 

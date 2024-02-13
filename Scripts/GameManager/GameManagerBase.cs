@@ -79,11 +79,12 @@ public abstract partial class GameManagerBase : Node {
         }
 
         CarController car = carScene.Instantiate<CarController>();
+        car.SetCarBrand("res://Resources/Cars/CarBase.tres");
+        car.playerId = playerId;
+        car.GlobalTransform = map.GetSpawnPoints()[playerId];
         playersNode.AddChild(car);
 
-        car.GlobalTransform = map.GetSpawnPoints()[playerId];
         car.SetLocalCar(isLocal);
-        car.playerId = playerId;
 
         if (isLocal) {
             localCar = car;
