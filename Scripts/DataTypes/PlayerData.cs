@@ -5,6 +5,7 @@ public class PlayerData {
     public int playerId; 
     public int peerId;
     public string playerName;
+    public CarController car;
     public bool ready;
     public bool finished;
     public float raceTime;

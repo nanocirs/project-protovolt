@@ -9,14 +9,12 @@ public partial class CarController : VehicleBody3D
     [Export] float maxRpm = 500.0f;
     [Export] float maxTorque = 200.0f;
 
-    [ExportGroup("Wheels")]
-    [Export] VehicleWheel3D wheelBackLeft = null;
-    [Export] VehicleWheel3D wheelBackRight = null;
-    [Export] VehicleWheel3D wheelFrontLeft = null;
-    [Export] VehicleWheel3D wheelFrontRight = null;
+    VehicleWheel3D wheelBackLeft = null;
+    VehicleWheel3D wheelBackRight = null;
+    VehicleWheel3D wheelFrontLeft = null;
+    VehicleWheel3D wheelFrontRight = null;
 
-    [ExportGroup("Camera")]
-    [Export] Camera3D camera = null;
+    Camera3D camera = null;
 
     public int playerId = -1;
 
@@ -31,23 +29,17 @@ public partial class CarController : VehicleBody3D
 
     public override void _Ready() {
 
-        camera.Current = false;
-
-        if (wheelBackLeft == null || wheelBackRight == null || wheelFrontLeft == null || wheelFrontRight == null) {
-
-            isValidCar = false;
-
-            GD.PrintErr("There are unassigned wheels in Car");
-
+        wheelBackLeft = GetNodeOrNull<VehicleWheel3D>("WheelBL");
+        wheelBackRight = GetNodeOrNull<VehicleWheel3D>("WheelBR");
+        wheelFrontLeft = GetNodeOrNull<VehicleWheel3D>("WheelFL");
+        wheelFrontRight = GetNodeOrNull<VehicleWheel3D>("WheelFR");
+        camera = GetNodeOrNull<Camera3D>("Camera3D");
+        
+        if (!IsValidCar()) {
             return;
-
         }
 
-        InputManager.instance.OnUpInput += (value) => isAcceleratePressed = value;
-        InputManager.instance.OnDownInput += (value) => isBrakePressed = value;
-        InputManager.instance.OnLeftInput += (value) => isSteerLeftPressed = value;
-        InputManager.instance.OnRightInput += (value) => isSteerRightPressed = value;
-        InputManager.instance.OnUseInput += (value) => EmitSignal(SignalName.OnCarPressedUse, this);
+        camera?.ClearCurrent();
 
     }
 
@@ -71,12 +63,6 @@ public partial class CarController : VehicleBody3D
 
     }
 
-    public void SetLocalCar(bool isLocal) {
-        isLocalCar = isLocal;
-        camera.Current = isLocal;
-
-    }
-
     public void EnableEngine(bool enable) {
         canRace = enable;
     }
@@ -97,5 +83,64 @@ public partial class CarController : VehicleBody3D
     public void EffectOil() {}
 
     public void EffectStickerLaugh() {}
+    
+    public void SetLocalCar(bool isLocal) {
+
+        isLocalCar = isLocal;
+
+        if (isLocal) {
+            InputManager.instance.OnUpInput += OnAccelerateInput;
+            InputManager.instance.OnDownInput += OnBrakeInput;
+            InputManager.instance.OnLeftInput += OnSteerLeftInput;
+            InputManager.instance.OnRightInput += OnSteerRightInput;
+            InputManager.instance.OnUseInput += OnUseInput;
+            camera?.MakeCurrent();
+        }
+        else {
+            InputManager.instance.OnUpInput -= OnAccelerateInput;
+            InputManager.instance.OnDownInput -= OnBrakeInput;
+            InputManager.instance.OnLeftInput -= OnSteerLeftInput;
+            InputManager.instance.OnRightInput -= OnSteerRightInput;
+            InputManager.instance.OnUseInput -= OnUseInput;
+            camera?.ClearCurrent();
+        }
+
+    }
+
+    private void OnAccelerateInput(bool value)  { isAcceleratePressed = value; }
+    private void OnBrakeInput(bool value)       { isBrakePressed = value; }
+    private void OnSteerLeftInput(bool value)   { isSteerLeftPressed = value; }
+    private void OnSteerRightInput(bool value)  { isSteerRightPressed = value; }
+    private void OnUseInput(bool value)         { EmitSignal(SignalName.OnCarPressedUse, this); }
+
+    public bool IsValidCar() {
+        
+        if (wheelBackLeft == null) {
+            isValidCar = false;
+            GD.PrintErr("Unassigned VehicleWheel3D in Car (WheelBL).");
+        }
+
+        if (wheelBackRight == null) {
+            isValidCar = false;
+            GD.PrintErr("Unassigned VehicleWheel3D in Car (WheelBR).");
+        }
+
+        if (wheelFrontLeft == null) {
+            isValidCar = false;
+            GD.PrintErr("Unassigned VehicleWheel3D in Car (WheelFL).");
+        }
+
+        if (wheelFrontRight == null) {
+            isValidCar = false;
+            GD.PrintErr("Unassigned VehicleWheel3D in Car (WheelFR).");
+        }
+
+        if (camera == null) {
+            GD.PushWarning("Unassigned Camera3D in Car (Camera3D).");
+        }
+
+        return isValidCar;
+
+    }
 
 }

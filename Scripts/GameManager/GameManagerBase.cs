@@ -8,7 +8,7 @@ public abstract partial class GameManagerBase : Node {
     [Export(PropertyHint.Range, "1,12")] public int maxPlayers = 12;
     [Export] public bool countdownEnabled = true;
     
-    public PackedScene carScene = ResourceLoader.Load<PackedScene>("res://Prefabs/Player/Car.tscn");
+    public PackedScene carScene = ResourceLoader.Load<PackedScene>("res://Prefabs/Cars/CarModel1.tscn");
 
     public GameUI hud = null;
     public MapManager map = null;
