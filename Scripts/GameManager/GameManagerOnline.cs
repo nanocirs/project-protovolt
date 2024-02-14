@@ -107,6 +107,7 @@ public partial class GameManagerOnline : GameManagerBase {
     
     //
 
+
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {
 
         if (car.playerId == GameState.playerId) {
@@ -132,10 +133,15 @@ public partial class GameManagerOnline : GameManagerBase {
             // Add lap when crossing first checkpoint of the list (i.e. finish line) AND >>magic<< to add lap only when confirmed checkpoints are coherent with current lap.
             if ((GameState.players[playerId].confirmedCheckpoint - 1) % checkpointsPerLap == 0 && ((GameState.players[playerId].confirmedCheckpoint - 1) / checkpointsPerLap) >= currentLap) {
                 OnLapUpdated();
+
+                if (currentLap > map.totalLaps) {
+                    MultiplayerManager.CarFinished(currentTime);
+                }
             }
 
         }
 
     }
+    
 
 }

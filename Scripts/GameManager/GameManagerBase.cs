@@ -165,9 +165,8 @@ public abstract partial class GameManagerBase : Node {
     }
 
     protected void OnCarFinished(int playerId, string name, float raceTime) {
-
-        hud.AddScore(name, raceTime);
-
+        hud.AddScore(name + playerId.ToString(), raceTime);
+        
         if (playerId == GameState.playerId) {
 
             hud.EnableScoreboard();

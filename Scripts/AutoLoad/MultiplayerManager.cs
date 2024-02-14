@@ -386,7 +386,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     // CAR FINISHED
 
     public static void CarFinished(float raceTime) {
-        
+        GD.Print("KPASKPDSA");
         if (instance.Multiplayer.IsServer()) {
             instance.Rpc("OnCarFinishedEmit", peerIdplayerIdMap[SV_PEER_ID], raceTime);
         }
@@ -410,7 +410,9 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         GameState.players[playerId].finished = true;
         GameState.players[playerId].raceTime = raceTime;
 
-        EmitSignal(SignalName.OnCarFinished, GameState.players[playerId].playerId, GameState.players[playerId].playerName, raceTime);
+        if (playerId != GameState.playerId) {
+            EmitSignal(SignalName.OnCarFinished, GameState.players[playerId].playerId, GameState.players[playerId].playerName, raceTime);
+        }
 
     }
 
