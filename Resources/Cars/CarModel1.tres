@@ -8,4 +8,4 @@ steerLimit = 30.0
 maxRpm = 8000.0
 maxTorque = 300.0
 mass = 90.0
-traction = 0
+traction = 1

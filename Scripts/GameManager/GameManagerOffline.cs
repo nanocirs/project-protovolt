@@ -1,5 +1,3 @@
-using Godot;
-
 public partial class GameManagerOffline : GameManagerBase {
 
     public override void _Ready() {
@@ -25,20 +23,13 @@ public partial class GameManagerOffline : GameManagerBase {
 
     private void SetupPlayers() {
 
-        GameState.playerId = 0;
-        
-        GameState.players[0] = new PlayerData();
-        GameState.players[0].playerId = 0;
-        GameState.players[0].playerName = GameState.playerName;
-
+        // Player already created on car menu.
+        // @TODO: Should they all be created on car menu?
         LoadPlayer(0, true);
 
         for (int i = 1; i < GameState.maxPlayers; i++) {
 
-            GameState.players[i] = new PlayerData();
-            GameState.players[i].playerId = i;
-            GameState.players[i].playerName = GameState.playerName;
-
+            GameState.CreatePlayer(i, GameState.playerName);
             LoadPlayer(i, false);
 
         }   

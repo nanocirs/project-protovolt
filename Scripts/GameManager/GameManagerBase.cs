@@ -8,11 +8,11 @@ public abstract partial class GameManagerBase : Node {
     [Export(PropertyHint.Range, "1,12")] public int maxPlayers = 12;
     [Export] public bool countdownEnabled = true;
     
-    public PackedScene carScene = ResourceLoader.Load<PackedScene>("res://Prefabs/Cars/CarModel1.tscn");
-
     public GameUI hud = null;
     public MapManager map = null;
     public Node playersNode = null;
+
+    private string carPath = "res://Prefabs/Cars/CarBase.tscn";
 
     protected const float COUNTDOWN_TIME = 3.0f;
     
@@ -78,8 +78,16 @@ public abstract partial class GameManagerBase : Node {
             return;
         }
 
+        PackedScene carScene = ResourceLoader.Load<PackedScene>(carPath);
+
+        if (!ResourceLoader.Exists(carPath)) {
+            isValidGame = false;
+            GD.PrintErr("GameManager needs a Car Scene set up.");
+            return;
+        }
+
         CarController car = carScene.Instantiate<CarController>();
-        car.SetCarBrand("res://Resources/Cars/CarBase.tres");
+        car.SetCarBrand(GameState.players[playerId].carPath);
         car.playerId = playerId;
         car.GlobalTransform = map.GetSpawnPoints()[playerId];
         playersNode.AddChild(car);
@@ -103,7 +111,7 @@ public abstract partial class GameManagerBase : Node {
 
         hud.SetPosition(GetRacePosition());
 
-        if (countdownEnabled) {        
+        if (countdownEnabled) {
             hud.StartCountdown();
             await ToSignal(GetTree().CreateTimer(COUNTDOWN_TIME), SceneTreeTimer.SignalName.Timeout);
         }
@@ -227,12 +235,6 @@ public abstract partial class GameManagerBase : Node {
         if (playersNode == null) {
             isValidGame = false;
             GD.PrintErr("GameManager needs a Node called Players.");
-        }
-
-        if (carScene == null) {
-            isValidGame = false;
-            GD.PrintErr("GameManager needs a Car Scene set up.");
-
         }
 
         return isValidGame;

@@ -1,0 +1,76 @@
+[gd_scene load_steps=5 format=3 uid="uid://chbr8eanxvabk"]
+
+[ext_resource type="Script" path="res://Scripts/Menu/CarMenuLoader.cs" id="1_inexk"]
+[ext_resource type="ButtonGroup" uid="uid://q2cefr56o0p8" path="res://Resources/ButtonGroups/CarSelection.tres" id="2_vr065"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ilp2v"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_n66xq"]
+size = Vector2(100, 100)
+
+[node name="CarSelection" type="CanvasLayer"]
+script = ExtResource("1_inexk")
+
+[node name="Title" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -249.0
+offset_top = 36.19
+offset_right = 249.0
+offset_bottom = 119.19
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
+text = "Car Selection"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -249.0
+offset_top = -15.5
+offset_right = 249.0
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Car0" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("2_vr065")
+icon = SubResource("PlaceholderTexture2D_n66xq")
+icon_alignment = 1
+metadata/carPath = "res://Resources/Cars/CarBase.tres"
+
+[node name="Car1" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("2_vr065")
+icon = SubResource("PlaceholderTexture2D_n66xq")
+icon_alignment = 1
+metadata/carPath = "res://Resources/Cars/CarModel1.tres"
+
+[node name="Confirm" type="Button" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -35.5
+offset_top = -77.02
+offset_right = 35.5
+offset_bottom = -46.02
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "Confirm"

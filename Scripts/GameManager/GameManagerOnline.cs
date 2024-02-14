@@ -52,8 +52,6 @@ public partial class GameManagerOnline : GameManagerBase {
         MultiplayerManager.Start();
     }
 
-    //
-
     protected override void OnPickUpCollected(CarController car) {
 
         if (Multiplayer.IsServer()) {
@@ -80,8 +78,6 @@ public partial class GameManagerOnline : GameManagerBase {
         UpdatePlayerPickUp(playerId, pickUp);
 
     }
-
-    //
 
     protected override void OnPickUpUsed(CarController car)
     {

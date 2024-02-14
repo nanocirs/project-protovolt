@@ -45,12 +45,20 @@ public partial class LobbyMenu : CanvasLayer {
 
     }
 
-    private void OnPlayPressed() {
+    private void OnStartPressed() {
 
-        MultiplayerManager.LoadMap(mapFile);
-        
-        GD.Print("Game starting...");
+        if (Multiplayer.IsServer()) {
+            Rpc("CarSelection");
+        }
+    
+        //MultiplayerManager.LoadMap(mapFile);
+        //GD.Print("Game starting...");
 
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void CarSelection() {
+        GetParent<MainMenuManager>().SetMenuPage(MainMenuManager.MenuPage.Cars);
     }
 
     private void OnDisconnectPressed() {

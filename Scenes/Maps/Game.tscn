@@ -1,7 +1,6 @@
-[gd_scene load_steps=15 format=3 uid="uid://dbw6jk3rg54of"]
+[gd_scene load_steps=14 format=3 uid="uid://dbw6jk3rg54of"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager/GameManagerLoader.cs" id="1_83673"]
-[ext_resource type="PackedScene" uid="uid://bpnophrpq4ttu" path="res://Prefabs/Player/Car.tscn" id="2_lhsx6"]
 [ext_resource type="PackedScene" uid="uid://ci6oujp44fghk" path="res://Prefabs/UI/GameUI.tscn" id="2_qfojx"]
 [ext_resource type="Script" path="res://Scripts/Map/MapManager.cs" id="3_qxy4m"]
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="5_6l5dy"]
@@ -35,7 +34,6 @@ size = Vector3(500, 1, 500)
 
 [node name="GameManager" type="Node"]
 script = ExtResource("1_83673")
-selectedCar = ExtResource("2_lhsx6")
 
 [node name="Players" type="Node" parent="."]
 

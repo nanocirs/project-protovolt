@@ -5,23 +5,23 @@ public partial class MainMenuManager : Node {
     public enum MenuPage {
         Main = 0,
         Lobby = 1,
+        Cars = 2,
     }
 
-    [Export] private CanvasLayer canvasMainMenu = null;
-    [Export] private LobbyMenu canvasLobby = null;
+    private MainMenu mainMenu = null;
+    private LobbyMenu lobbyMenu = null;
+    private CarMenuLoader carsMenu = null;
 
-    private bool isSceneValid = true;
+    private bool isMainMenuValid = true;
 
     public override void _Ready() {
 
-        if (canvasMainMenu == null) {
-            isSceneValid = false;
-            GD.PrintErr("CanvasLayer (CanvasMainMenu) not assigned in Main Menu.");
-        }
+        mainMenu = GetNodeOrNull<MainMenu>("Main");
+        lobbyMenu = GetNodeOrNull<LobbyMenu>("Lobby");
+        carsMenu = GetNodeOrNull<CarMenuLoader>("Cars");
 
-        if (canvasLobby == null) {
-            isSceneValid = false;
-            GD.PrintErr("CanvasLayer (CanvasLobby) not assigned in Main Menu.");
+        if (!IsMainMenuValid()) {
+            return;
         }
 
         SetMenuPage(MenuPage.Main);
@@ -30,24 +30,49 @@ public partial class MainMenuManager : Node {
 
     public void SetMenuPage(MenuPage page) {
 
-        if (isSceneValid) {
-
-            canvasMainMenu.Hide();
-            canvasLobby.Hide();
-
-            switch (page) {
-                case MenuPage.Main:
-                    canvasMainMenu.Show();
-                    break;
-                case MenuPage.Lobby:
-                    canvasLobby.Show();
-                    break;
-                default:
-                    canvasMainMenu.Show();
-                    break;
-            }
-
+        if (!isMainMenuValid) {
+            return;
         }
+
+        mainMenu.Hide();
+        lobbyMenu.Hide();
+        carsMenu.Hide();
+
+        switch (page) {
+            case MenuPage.Main:
+                mainMenu.Show();
+                break;
+            case MenuPage.Lobby:
+                lobbyMenu.Show();
+                break;
+            case MenuPage.Cars:
+                carsMenu.Load();
+                break;
+            default:
+                mainMenu.Show();
+                break;
+        }
+
+    }
+
+    private bool IsMainMenuValid() {
+
+        if (mainMenu == null) {
+            isMainMenuValid = false;
+            GD.PrintErr("EntryMenu not assigned in Main Menu.");
+        }
+
+        if (lobbyMenu == null) {
+            isMainMenuValid = false;
+            GD.PrintErr("LobbyMenu not assigned in Main Menu.");
+        }
+
+        if (carsMenu == null) {
+            isMainMenuValid = false;
+            GD.PrintErr("CarMenuLoader not assigned in Main Menu.");
+        }
+
+        return isMainMenuValid;
 
     }
 

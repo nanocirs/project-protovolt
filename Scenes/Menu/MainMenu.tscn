@@ -1,121 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://cx20o4y16sfxy"]
+[gd_scene load_steps=5 format=3 uid="uid://cx20o4y16sfxy"]
 
-[ext_resource type="Script" path="res://Scripts/Menu/MainMenu.cs" id="1_5yqcj"]
 [ext_resource type="Script" path="res://Scripts/Menu/MainMenuManager.cs" id="1_b2b8l"]
-[ext_resource type="Script" path="res://Scripts/Menu/LobbyMenu.cs" id="2_a2ir8"]
-[ext_resource type="PackedScene" uid="uid://cyn4fo2de0kwx" path="res://Prefabs/UI/LobbyPlayerRow.tscn" id="3_pfolq"]
+[ext_resource type="PackedScene" uid="uid://lhkgxhn746sg" path="res://Prefabs/Menus/MainEntry.tscn" id="2_e0ksj"]
+[ext_resource type="PackedScene" uid="uid://cqlfy37ou0072" path="res://Prefabs/Menus/MainLobby.tscn" id="3_vwtq1"]
+[ext_resource type="PackedScene" uid="uid://chbr8eanxvabk" path="res://Prefabs/Menus/MainCar.tscn" id="4_8q6ei"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ilp2v"]
-
-[node name="MainMenu" type="Node" node_paths=PackedStringArray("canvasMainMenu", "canvasLobby")]
+[node name="MainMenu" type="Node"]
 script = ExtResource("1_b2b8l")
-canvasMainMenu = NodePath("Main")
-canvasLobby = NodePath("Lobby")
 
-[node name="Main" type="CanvasLayer" parent="."]
-script = ExtResource("1_5yqcj")
+[node name="Main" parent="." instance=ExtResource("2_e0ksj")]
 
-[node name="Title" type="Label" parent="Main"]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -249.0
-offset_top = 36.19
-offset_right = 249.0
-offset_bottom = 119.19
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 60
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
-text = "Coches chocones"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="Lobby" parent="." instance=ExtResource("3_vwtq1")]
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Main"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -249.0
-offset_top = -15.5
-offset_right = 249.0
-offset_bottom = 15.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Play" type="Button" parent="Main/VBoxContainer"]
-layout_mode = 2
-text = "Play"
-
-[node name="Connect" type="Button" parent="Main/VBoxContainer"]
-layout_mode = 2
-text = "Connect"
-
-[node name="Host" type="Button" parent="Main/VBoxContainer"]
-layout_mode = 2
-text = "Host"
-
-[node name="Lobby" type="CanvasLayer" parent="." node_paths=PackedStringArray("playersContainer", "playButton")]
+[node name="Cars" parent="." instance=ExtResource("4_8q6ei")]
 visible = false
-script = ExtResource("2_a2ir8")
-playersContainer = NodePath("HBoxContainer/PlayersList/PlayersContainer")
-playerNameRowScene = ExtResource("3_pfolq")
-playButton = NodePath("HBoxContainer/VBoxContainer/Play")
-
-[node name="Title" type="Label" parent="Lobby"]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -249.0
-offset_right = 249.0
-offset_bottom = 83.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
-text = "Server Lobby"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Lobby"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -189.0
-offset_top = -200.0
-offset_right = 169.0
-offset_bottom = 200.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PlayersList" type="Panel" parent="Lobby/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="PlayersContainer" type="VBoxContainer" parent="Lobby/HBoxContainer/PlayersList"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Lobby/HBoxContainer"]
-layout_mode = 2
-
-[node name="Play" type="Button" parent="Lobby/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-text = "Play"
-
-[node name="Disconnect" type="Button" parent="Lobby/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-text = "Disconnect"
-
-[connection signal="pressed" from="Main/VBoxContainer/Play" to="Main" method="OnPlayPressed"]
-[connection signal="pressed" from="Main/VBoxContainer/Connect" to="Main" method="OnConnectPressed"]
-[connection signal="pressed" from="Main/VBoxContainer/Host" to="Main" method="OnHostPressed"]
-[connection signal="pressed" from="Lobby/HBoxContainer/VBoxContainer/Play" to="Lobby" method="OnPlayPressed"]
-[connection signal="pressed" from="Lobby/HBoxContainer/VBoxContainer/Disconnect" to="Lobby" method="OnDisconnectPressed"]

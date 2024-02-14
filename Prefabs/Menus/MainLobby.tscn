@@ -1,0 +1,67 @@
+[gd_scene load_steps=4 format=3 uid="uid://cqlfy37ou0072"]
+
+[ext_resource type="Script" path="res://Scripts/Menu/LobbyMenu.cs" id="1_gv05x"]
+[ext_resource type="PackedScene" uid="uid://cyn4fo2de0kwx" path="res://Prefabs/UI/LobbyPlayerRow.tscn" id="2_xcd77"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ilp2v"]
+
+[node name="Lobby" type="CanvasLayer" node_paths=PackedStringArray("playersContainer", "playButton")]
+visible = false
+script = ExtResource("1_gv05x")
+playersContainer = NodePath("HBoxContainer/PlayersList/PlayersContainer")
+playerNameRowScene = ExtResource("2_xcd77")
+playButton = NodePath("HBoxContainer/VBoxContainer/Start")
+
+[node name="Title" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -249.0
+offset_right = 249.0
+offset_bottom = 83.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ilp2v")
+text = "Server Lobby"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -189.0
+offset_top = -200.0
+offset_right = 169.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PlayersList" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayersContainer" type="VBoxContainer" parent="HBoxContainer/PlayersList"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="Start" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Start"
+
+[node name="Disconnect" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Disconnect"
+
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/Start" to="." method="OnStartPressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/Disconnect" to="." method="OnDisconnectPressed"]

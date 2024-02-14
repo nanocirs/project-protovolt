@@ -70,6 +70,11 @@ public partial class CarController : VehicleBody3D {
 
     public void SetCarBrand(string brandPath = "res://Resources/Cars/CarBase.tres") {
         
+        if (!ResourceLoader.Exists(brandPath)) {
+            brandPath = "res://Resources/Cars/CarBase.tres";
+            GD.PushWarning("Invalid path to car brand. Using the default one.");
+        }
+
         Car car = ResourceLoader.Load<Car>(brandPath);
 
         steerLimit = car.steerLimit;
@@ -94,6 +99,7 @@ public partial class CarController : VehicleBody3D {
         maxRpm /= 5.0f;
         maxTorque /= 3.0f;
         Mass /= 3.0f;
+        
     }
 
     public void EffectOil() {}

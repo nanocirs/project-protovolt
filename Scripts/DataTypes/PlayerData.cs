@@ -5,7 +5,7 @@ public class PlayerData {
     public int playerId; 
     public int peerId;
     public string playerName;
-    public CarController car;
+    public string carPath;
     public bool ready;
     public bool finished;
     public float raceTime;
@@ -17,7 +17,7 @@ public class PlayerData {
     public float carSteering;
 
     public void Restart() {
-        car = null;
+        //carPath = "";
         confirmedCheckpoint = 0;
         currentCheckpoint = 0;
         raceTime = 0.0f;
