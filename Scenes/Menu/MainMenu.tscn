@@ -1,16 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://cx20o4y16sfxy"]
+[gd_scene load_steps=6 format=3 uid="uid://cx20o4y16sfxy"]
 
-[ext_resource type="Script" path="res://Scripts/Menu/MainMenuManager.cs" id="1_b2b8l"]
+[ext_resource type="Script" path="res://Scripts/Menu/MainMenuManager.cs" id="1_uaq8m"]
 [ext_resource type="PackedScene" uid="uid://lhkgxhn746sg" path="res://Prefabs/Menus/MainEntry.tscn" id="2_e0ksj"]
 [ext_resource type="PackedScene" uid="uid://cqlfy37ou0072" path="res://Prefabs/Menus/MainLobby.tscn" id="3_vwtq1"]
-[ext_resource type="PackedScene" uid="uid://chbr8eanxvabk" path="res://Prefabs/Menus/MainCar.tscn" id="4_8q6ei"]
+[ext_resource type="PackedScene" uid="uid://chbr8eanxvabk" path="res://Prefabs/Menus/MainCarOffline.tscn" id="4_8q6ei"]
+[ext_resource type="PackedScene" uid="uid://oje3c4trle7y" path="res://Prefabs/Menus/MainCarOnline.tscn" id="6_6iev7"]
 
 [node name="MainMenu" type="Node"]
-script = ExtResource("1_b2b8l")
+script = ExtResource("1_uaq8m")
 
 [node name="Main" parent="." instance=ExtResource("2_e0ksj")]
 
 [node name="Lobby" parent="." instance=ExtResource("3_vwtq1")]
 
-[node name="Cars" parent="." instance=ExtResource("4_8q6ei")]
+[node name="CarsOffline" parent="." instance=ExtResource("4_8q6ei")]
+visible = false
+
+[node name="CarsOnline" parent="." instance=ExtResource("6_6iev7")]
 visible = false

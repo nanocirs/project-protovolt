@@ -2,16 +2,27 @@ using Godot;
 
 public partial class CarMenuLoader : CanvasLayer {
 
-    CarMenuBase carMenu = null;
-
+/*
+    [Export] ButtonGroup buttonGroup = null;
+    [Export] Button confirmButton = null;
     public void Load() {
 
-        carMenu = MultiplayerManager.connected ? new CarMenuOnline() : new CarMenuOffline();
-        carMenu.buttonGroup = ResourceLoader.Load<ButtonGroup>("res://Resources/ButtonGroups/CarSelection.tres");
-        carMenu.confirmButton = GetNodeOrNull<Button>("Confirm");
-        AddChild(carMenu);
+        if (MultiplayerManager.connected) {
+            CarMenuOnline carMenu = new CarMenuOnline();
+            //carMenu.buttonGroup = buttonGroup;
+            AddChild(carMenu);
+            ((CarMenuOnline)carMenu).Load();
+
+        }
+        else {
+            CarMenuOffline carMenu = new CarMenuOffline();
+            //carMenu.buttonGroup = buttonGroup;
+            carMenu.confirmButton = confirmButton;        
+            AddChild(carMenu);
+        }
 
         Show();
+ 
     }
-
+    */
 }

@@ -50,9 +50,6 @@ public partial class LobbyMenu : CanvasLayer {
         if (Multiplayer.IsServer()) {
             Rpc("CarSelection");
         }
-    
-        //MultiplayerManager.LoadMap(mapFile);
-        //GD.Print("Game starting...");
 
     }
 

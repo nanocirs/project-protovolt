@@ -1,39 +1,112 @@
 using Godot;
 
-public partial class CarMenuOnline : CarMenuBase {
+public partial class CarMenuOnline : CanvasLayer {
 
-    public float timeToSelect = 20.0f;
+    [Export] private ButtonGroup buttonGroup = null;
 
-    Timer selectionTimer = new Timer();
+    protected string carPath = "";
+
+    private Timer selectionTimer = null;
+    private float timeToSelect = 5.0f;
+
+    private int carsNotified = 0;
 
     public override void _Ready() {
-        base._Ready();
+                
+        if (buttonGroup == null) {
+            GD.PrintErr("CarMenuOnline doesn't have a valid ButtonGroup.");
+            return;
+        }
+        else {
+            buttonGroup.Pressed += SelectedCar;
+        }
 
-        selectionTimer.WaitTime = timeToSelect;
-        selectionTimer.OneShot = true;
-        selectionTimer.Timeout += ConfirmCarSelection;
-        AddChild(selectionTimer);
+        if (Multiplayer.IsServer()) {
 
-        selectionTimer.Start();
+            selectionTimer = new Timer();
+            selectionTimer.WaitTime = timeToSelect;
+            selectionTimer.OneShot = true;
+        
+            AddChild(selectionTimer);
+
+            selectionTimer.Timeout += CollectSelectedCars;
+
+        }
 
     }
 
-    protected override void ConfirmCarSelection() {
-        
-        selectionTimer.QueueFree();
+    public void Load() {
+        selectionTimer.Start();
+        Show();
+    }
 
-        if (carPath == "") {
+    private void SelectedCar(BaseButton button) {
+        carPath = button.GetMeta("carPath").AsString();
+    }
 
-            int totalCars = buttonGroup.GetButtons().Count;
-            int randomCar = GD.RandRange(0, totalCars - 1);
+    private string GetRandomCarPath() {
+
+        int totalCars = buttonGroup.GetButtons().Count;
+        int randomCar = GD.RandRange(0, totalCars - 1);
             
-            carPath = buttonGroup.GetButtons()[randomCar].GetMeta("carPath").AsString();
-            
+        return buttonGroup.GetButtons()[randomCar].GetMeta("carPath").AsString();
+
+    }
+
+    private void CollectSelectedCars() {
+
+        if (Multiplayer.IsServer()) {
+
+            if (carPath == "") {
+                carPath = GetRandomCarPath();
+            }
+
+            GameState.players[GameState.playerId].carPath = carPath;
+
+            carsNotified++;
+
+            if (carsNotified == GameState.GetTotalPlayers()) {
+                Rpc("LoadMap", "Maps/Game.tscn");
+            }
+            else {
+                Rpc("RequestSelectedCars");
+            }
+
         }
 
-        GameState.players[GameState.playerId].carPath = carPath;
+    }
 
-        // @TODO: Networkear.
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RequestSelectedCars() {
+        RpcId(MultiplayerManager.SV_PEER_ID, "NotifySelectedCar", carPath);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifySelectedCar(string path) {
+        
+        if (Multiplayer.IsServer()) {
+            
+            int playerId = MultiplayerManager.peerIdplayerIdMap[Multiplayer.GetRemoteSenderId()];
+
+            if (path == "") {
+                path = GetRandomCarPath();
+            }
+
+            GameState.players[playerId].carPath = path;
+
+            carsNotified++;
+
+            if (carsNotified == GameState.GetTotalPlayers()) {
+                Rpc("LoadMap", "Maps/Game.tscn");           
+            }
+
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void LoadMap(string mapPath) {
+        GameStateMachine.instance.LoadScene(mapPath);
     }
 
 }

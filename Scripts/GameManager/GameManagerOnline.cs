@@ -65,7 +65,7 @@ public partial class GameManagerOnline : GameManagerBase {
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void NotifyPickUpCollected(int playerId) {
-        
+
         if (Multiplayer.IsServer()) {
             RpcId(Multiplayer.GetRemoteSenderId(), "UpdatePickUp", playerId, (int)Pickable.GetRandomPickUp());
         }
@@ -104,9 +104,6 @@ public partial class GameManagerOnline : GameManagerBase {
         RemovePlayerPickUp(playerId);
 
     }
-    
-    //
-
 
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {
 

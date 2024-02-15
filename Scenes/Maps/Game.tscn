@@ -32,13 +32,17 @@ uv1_scale = Vector3(80, 80, 80)
 [sub_resource type="BoxShape3D" id="BoxShape3D_dmdgy"]
 size = Vector3(500, 1, 500)
 
-[node name="GameManager" type="Node"]
+[node name="GameManager" type="Node" node_paths=PackedStringArray("hud", "map", "playersNode")]
 script = ExtResource("1_83673")
+hud = NodePath("UI")
+map = NodePath("Map")
+playersNode = NodePath("Players")
 
 [node name="Players" type="Node" parent="."]
 
 [node name="Map" type="Node" parent="."]
 script = ExtResource("3_qxy4m")
+totalLaps = 1
 
 [node name="World" type="Node" parent="Map"]
 

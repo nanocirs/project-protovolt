@@ -10,7 +10,8 @@ public partial class MainMenuManager : Node {
 
     private MainMenu mainMenu = null;
     private LobbyMenu lobbyMenu = null;
-    private CarMenuLoader carsMenu = null;
+    private CarMenuOffline carsMenuOffline = null;
+    private CarMenuOnline carsMenuOnline = null;
 
     private bool isMainMenuValid = true;
 
@@ -18,7 +19,8 @@ public partial class MainMenuManager : Node {
 
         mainMenu = GetNodeOrNull<MainMenu>("Main");
         lobbyMenu = GetNodeOrNull<LobbyMenu>("Lobby");
-        carsMenu = GetNodeOrNull<CarMenuLoader>("Cars");
+        carsMenuOffline = GetNodeOrNull<CarMenuOffline>("CarsOffline");
+        carsMenuOnline = GetNodeOrNull<CarMenuOnline>("CarsOnline");
 
         if (!IsMainMenuValid()) {
             return;
@@ -36,7 +38,8 @@ public partial class MainMenuManager : Node {
 
         mainMenu.Hide();
         lobbyMenu.Hide();
-        carsMenu.Hide();
+        carsMenuOffline.Hide();
+        carsMenuOnline.Hide();
 
         switch (page) {
             case MenuPage.Main:
@@ -46,7 +49,12 @@ public partial class MainMenuManager : Node {
                 lobbyMenu.Show();
                 break;
             case MenuPage.Cars:
-                carsMenu.Load();
+                if (MultiplayerManager.connected) {
+                    carsMenuOnline.Load();
+                }
+                else {
+                    carsMenuOffline.Show();
+                }
                 break;
             default:
                 mainMenu.Show();
@@ -67,9 +75,14 @@ public partial class MainMenuManager : Node {
             GD.PrintErr("LobbyMenu not assigned in Main Menu.");
         }
 
-        if (carsMenu == null) {
+        if (carsMenuOffline == null) {
             isMainMenuValid = false;
-            GD.PrintErr("CarMenuLoader not assigned in Main Menu.");
+            GD.PrintErr("CarsMenuOffline not assigned in Main Menu.");
+        }
+
+        if (carsMenuOnline == null) {
+            isMainMenuValid = false;
+            GD.PrintErr("CarsMenuOnline not assigned in Main Menu.");
         }
 
         return isMainMenuValid;

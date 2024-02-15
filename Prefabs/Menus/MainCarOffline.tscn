@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://chbr8eanxvabk"]
 
-[ext_resource type="Script" path="res://Scripts/Menu/CarMenuLoader.cs" id="1_inexk"]
+[ext_resource type="Script" path="res://Scripts/Menu/CarMenuOffline.cs" id="1_h3bf1"]
 [ext_resource type="ButtonGroup" uid="uid://q2cefr56o0p8" path="res://Resources/ButtonGroups/CarSelection.tres" id="2_vr065"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ilp2v"]
@@ -8,8 +8,10 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_n66xq"]
 size = Vector2(100, 100)
 
-[node name="CarSelection" type="CanvasLayer"]
-script = ExtResource("1_inexk")
+[node name="CarSelection" type="CanvasLayer" node_paths=PackedStringArray("confirmButton")]
+script = ExtResource("1_h3bf1")
+confirmButton = NodePath("Confirm")
+buttonGroup = ExtResource("2_vr065")
 
 [node name="Title" type="Label" parent="."]
 anchors_preset = 5

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -243,7 +244,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         RpcId(Multiplayer.GetRemoteSenderId(), "SetPlayerId", clientPlayerId);
 
         foreach (var tuple in GameState.players) {
-            Rpc("UpdatePlayerList", tuple.Key, tuple.Value.peerId);
+            Rpc("UpdatePlayerList", tuple.Key, tuple.Value.peerId, tuple.Value.carPath);
         }
 
     }
@@ -260,10 +261,11 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void UpdatePlayerList(int playerId, int peerId) {
+    private void UpdatePlayerList(int playerId, int peerId, string carPath) {
 
         GameState.players[playerId].Restart();
         GameState.players[playerId].peerId = peerId;
+        GameState.players[playerId].carPath = carPath;
 
     }
 
@@ -386,7 +388,7 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     // CAR FINISHED
 
     public static void CarFinished(float raceTime) {
-        GD.Print("KPASKPDSA");
+
         if (instance.Multiplayer.IsServer()) {
             instance.Rpc("OnCarFinishedEmit", peerIdplayerIdMap[SV_PEER_ID], raceTime);
         }
