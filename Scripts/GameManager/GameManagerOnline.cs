@@ -134,6 +134,7 @@ public partial class GameManagerOnline : GameManagerBase {
                 if (currentLap > map.totalLaps) {
                     MultiplayerManager.CarFinished(currentTime);
                 }
+                
             }
 
         }
