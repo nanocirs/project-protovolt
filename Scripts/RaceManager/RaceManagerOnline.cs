@@ -1,7 +1,7 @@
 using Godot;
 using System.Linq;
 
-public partial class GameManagerOnline : GameManagerBase {
+public partial class RaceManagerOnline : RaceManagerBase {
 
     public override void _Ready() {
 

@@ -27,7 +27,6 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnCarFinishedEventHandler(int playerId, string name, float raceTime);
 
     [Export] private GameManager game = null;
-    [Export] private GameLobby gameLobby = null;
     [Export] private CarSelection carSelection = null;
 
     private const string DEFAULT_IP = "127.0.0.1";
@@ -234,15 +233,11 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
 #endregion
 
-#region GAME_LOBBY
+#region IN_GAME
 
     public static void PlayerLoaded() {
-        instance.gameLobby.PlayerLoaded();
+        instance.game.PlayerLoaded();
     }
-
-#endregion
-
-#region IN_GAME
 
     public static void PlayersReady() {
         instance.game.PlayersReady();

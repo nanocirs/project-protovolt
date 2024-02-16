@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://dbw6jk3rg54of"]
 
-[ext_resource type="Script" path="res://Scripts/GameManager/GameManagerLoader.cs" id="1_83673"]
+[ext_resource type="Script" path="res://Scripts/RaceManager/RaceManagerLoader.cs" id="1_83673"]
 [ext_resource type="PackedScene" uid="uid://ci6oujp44fghk" path="res://Prefabs/UI/GameUI.tscn" id="2_qfojx"]
 [ext_resource type="Script" path="res://Scripts/Map/MapManager.cs" id="3_qxy4m"]
 [ext_resource type="Texture2D" uid="uid://b6gfcjaiyfcg8" path="res://Art/Textures/proto_grid.png" id="5_6l5dy"]
@@ -32,18 +32,16 @@ uv1_scale = Vector3(80, 80, 80)
 [sub_resource type="BoxShape3D" id="BoxShape3D_dmdgy"]
 size = Vector3(500, 1, 500)
 
-[node name="GameManager" type="Node" node_paths=PackedStringArray("hud", "map", "playersNode")]
+[node name="RaceManager" type="Node" node_paths=PackedStringArray("hud", "map", "playersContainer")]
 script = ExtResource("1_83673")
-countdownEnabled = null
 hud = NodePath("UI")
 map = NodePath("Map")
-playersNode = NodePath("Players")
+playersContainer = NodePath("Players")
 
 [node name="Players" type="Node" parent="."]
 
 [node name="Map" type="Node" parent="."]
 script = ExtResource("3_qxy4m")
-totalLaps = 1
 
 [node name="World" type="Node" parent="Map"]
 

@@ -1,4 +1,4 @@
-public partial class GameManagerOffline : GameManagerBase {
+public partial class RaceManagerOffline : RaceManagerBase {
 
     public override void _Ready() {
     

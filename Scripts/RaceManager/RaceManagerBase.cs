@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-public abstract partial class GameManagerBase : Node {
+public abstract partial class RaceManagerBase : Node {
 
     [ExportGroup("Game Settings")]
     [Export(PropertyHint.Range, "1,12")] public int maxPlayers = 12;
@@ -10,7 +10,7 @@ public abstract partial class GameManagerBase : Node {
     
     public GameUI hud = null;
     public MapManager map = null;
-    public Node playersNode = null;
+    public Node playersContainer = null;
 
     private string carPath = "res://Prefabs/Cars/CarBase.tscn";
 
@@ -37,11 +37,11 @@ public abstract partial class GameManagerBase : Node {
 
     public override void _Ready() {
 
-        if (hud == null || map == null || playersNode == null) {
+        if (hud == null || map == null || playersContainer == null) {
 
             hud = GetNodeOrNull<GameUI>("UI");
             map = GetNodeOrNull<MapManager>("Map");
-            playersNode = GetNodeOrNull("Players");
+            playersContainer = GetNodeOrNull("Players");
 
             if (!IsValidGame()) {
                 return;
@@ -90,7 +90,7 @@ public abstract partial class GameManagerBase : Node {
         car.SetCarBrand(GameState.players[playerId].carPath);
         car.playerId = playerId;
         car.GlobalTransform = map.GetSpawnPoints()[playerId];
-        playersNode.AddChild(car);
+        playersContainer.AddChild(car);
 
         car.SetLocalCar(isLocal);
 
@@ -231,7 +231,7 @@ public abstract partial class GameManagerBase : Node {
             GD.PrintErr("GameManager needs a Node called Map.");
         }
 
-        if (playersNode == null) {
+        if (playersContainer == null) {
             isValidGame = false;
             GD.PrintErr("GameManager needs a Node called Players.");
         }

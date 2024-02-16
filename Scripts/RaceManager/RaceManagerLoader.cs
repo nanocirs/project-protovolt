@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class GameManagerLoader : Node {
+public partial class RaceManagerLoader : Node {
 
     [ExportGroup("Game Settings")]
     [Export(PropertyHint.Range, "1,12")] private const int maxPlayers = 12;
@@ -8,17 +8,17 @@ public partial class GameManagerLoader : Node {
 
     [Export] public GameUI hud = null;
     [Export] public MapManager map = null;
-    [Export] public Node playersNode = null;
+    [Export] public Node playersContainer = null;
 
     public override void _Ready() {
 
-        GameManagerBase game = MultiplayerManager.connected ? new GameManagerOnline() : new GameManagerOffline();
+        RaceManagerBase game = MultiplayerManager.connected ? new RaceManagerOnline() : new RaceManagerOffline();
 
         game.maxPlayers = maxPlayers;
         game.countdownEnabled = countdownEnabled;
         game.hud = hud;
         game.map = map;
-        game.playersNode = playersNode;
+        game.playersContainer = playersContainer;
 
         AddChild(game);
 
