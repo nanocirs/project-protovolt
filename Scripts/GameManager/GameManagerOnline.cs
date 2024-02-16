@@ -10,8 +10,10 @@ public partial class GameManagerOnline : GameManagerBase {
         MultiplayerManager.instance.OnPlayerLoaded += OnPlayerLoaded;
         MultiplayerManager.instance.OnPlayersReady += StartCountdown;
         MultiplayerManager.instance.OnRaceStarted += Start;
-        MultiplayerManager.instance.OnCarFinished += OnCarFinished;
+        MultiplayerManager.instance.OnPickUpCollected += UpdatePlayerPickUp;
+        MultiplayerManager.instance.OnPickUpUsed += RemovePlayerPickUp;
         MultiplayerManager.instance.OnCheckpointConfirm += OnCheckpointConfirm;
+        MultiplayerManager.instance.OnCarFinished += OnCarFinished;
 
         MultiplayerManager.PlayerLoaded();
 
@@ -42,67 +44,31 @@ public partial class GameManagerOnline : GameManagerBase {
 
         LoadPlayer(playerId, isLocal);
 
-        if (GameState.players.Count(element => element.Value.ready) == GameState.players.Count) {
-            MultiplayerManager.PlayersReady();
-        }
-        
+        if (Multiplayer.IsServer()) {
+
+            if (GameState.players.Count(element => element.Value.ready) == GameState.players.Count) {
+                MultiplayerManager.PlayersReady();
+            }
+
+        }   
+
     }
 
     protected override void StartRace() {
-        MultiplayerManager.Start();
+
+        if (Multiplayer.IsServer()) {
+            MultiplayerManager.Start();
+        }
+
     }
 
     protected override void OnPickUpCollected(CarController car) {
-
-        if (Multiplayer.IsServer()) {
-            UpdatePlayerPickUp(car.playerId, Pickable.GetRandomPickUp());
-        }
-        else if (GameState.playerId == car.playerId) {
-            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpCollected", car.playerId);
-        }
-    
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void NotifyPickUpCollected(int playerId) {
-
-        if (Multiplayer.IsServer()) {
-            RpcId(Multiplayer.GetRemoteSenderId(), "UpdatePickUp", playerId, (int)Pickable.GetRandomPickUp());
-        }
-
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void UpdatePickUp(int playerId, Pickable.PickUpType pickUp) {
-
-        UpdatePlayerPickUp(playerId, pickUp);
-
+        MultiplayerManager.PickUpCollect(car);
     }
 
     protected override void OnPickUpUsed(CarController car)
     {
-        if (Multiplayer.IsServer()) {
-            RemovePlayerPickUp(car.playerId);
-        }
-        else if (GameState.playerId == car.playerId) {
-            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpUsed", car.playerId);
-        }
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void NotifyPickUpUsed(int playerId) {
-        
-        if (Multiplayer.IsServer()) {
-            RpcId(Multiplayer.GetRemoteSenderId(), "ActivatePickUp", playerId);
-        }
-
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void ActivatePickUp(int playerId) {
-
-        RemovePlayerPickUp(playerId);
-
+        MultiplayerManager.PickUpUse(car);
     }
 
     protected override void OnCheckpointCrossed(CarController car, int checkpointSection) {
@@ -117,18 +83,19 @@ public partial class GameManagerOnline : GameManagerBase {
             // Magia en caso de que se decida ir hacia atrás
             else if (GameState.players[car.playerId].confirmedCheckpoint % checkpointsPerLap > checkpointSection) {
                 MultiplayerManager.CheckpointConfirm(-(GameState.players[car.playerId].confirmedCheckpoint % checkpointsPerLap - checkpointSection));
-
             }
 
         }
-
+        
     }
 
     private void OnCheckpointConfirm(int playerId, int confirmedCheckpoint) {
 
         if (playerId == GameState.playerId) {
+
             // Add lap when crossing first checkpoint of the list (i.e. finish line) AND >>magic<< to add lap only when confirmed checkpoints are coherent with current lap.
             if ((GameState.players[playerId].confirmedCheckpoint - 1) % checkpointsPerLap == 0 && ((GameState.players[playerId].confirmedCheckpoint - 1) / checkpointsPerLap) >= currentLap) {
+                
                 OnLapUpdated();
 
                 if (currentLap > map.totalLaps) {
@@ -140,6 +107,5 @@ public partial class GameManagerOnline : GameManagerBase {
         }
 
     }
-    
 
 }

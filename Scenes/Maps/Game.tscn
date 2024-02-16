@@ -34,6 +34,7 @@ size = Vector3(500, 1, 500)
 
 [node name="GameManager" type="Node" node_paths=PackedStringArray("hud", "map", "playersNode")]
 script = ExtResource("1_83673")
+countdownEnabled = null
 hud = NodePath("UI")
 map = NodePath("Map")
 playersNode = NodePath("Players")

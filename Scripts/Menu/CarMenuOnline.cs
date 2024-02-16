@@ -29,15 +29,31 @@ public partial class CarMenuOnline : CanvasLayer {
         
             AddChild(selectionTimer);
 
-            selectionTimer.Timeout += CollectSelectedCars;
+            selectionTimer.Timeout += RequestSelectedCars;
 
         }
+
+        MultiplayerManager.instance.OnSelectedCarsRequested += SendSelectedCar;
 
     }
 
     public void Load() {
         selectionTimer.Start();
         Show();
+    }
+    
+    private void SendSelectedCar() {
+        
+        if (carPath == "") {
+            carPath = GetRandomCarPath();
+        }
+
+        MultiplayerManager.SendSelectedCar(carPath);
+        
+    }
+
+    private void RequestSelectedCars() {
+        MultiplayerManager.RequestSelectedCars();
     }
 
     private void SelectedCar(BaseButton button) {
@@ -51,62 +67,6 @@ public partial class CarMenuOnline : CanvasLayer {
             
         return buttonGroup.GetButtons()[randomCar].GetMeta("carPath").AsString();
 
-    }
-
-    private void CollectSelectedCars() {
-
-        if (Multiplayer.IsServer()) {
-
-            if (carPath == "") {
-                carPath = GetRandomCarPath();
-            }
-
-            GameState.players[GameState.playerId].carPath = carPath;
-
-            carsNotified++;
-
-            if (carsNotified == GameState.GetTotalPlayers()) {
-                Rpc("LoadMap", "Maps/Game.tscn");
-            }
-            else {
-                Rpc("RequestSelectedCars");
-            }
-
-        }
-
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void RequestSelectedCars() {
-        RpcId(MultiplayerManager.SV_PEER_ID, "NotifySelectedCar", carPath);
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void NotifySelectedCar(string path) {
-        
-        if (Multiplayer.IsServer()) {
-            
-            int playerId = MultiplayerManager.peerIdplayerIdMap[Multiplayer.GetRemoteSenderId()];
-
-            if (path == "") {
-                path = GetRandomCarPath();
-            }
-
-            GameState.players[playerId].carPath = path;
-
-            carsNotified++;
-
-            if (carsNotified == GameState.GetTotalPlayers()) {
-                Rpc("LoadMap", "Maps/Game.tscn");           
-            }
-
-        }
-
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void LoadMap(string mapPath) {
-        GameStateMachine.instance.LoadScene(mapPath);
     }
 
 }

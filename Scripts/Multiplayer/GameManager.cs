@@ -29,19 +29,26 @@ public partial class GameManager : Node {
 
     }
 
-    public void CarFinished(float raceTime) {
+    public void PickUpCollect(CarController car) {
 
         if (Multiplayer.IsServer()) {
-            Rpc("OnCarFinishedEmit", MultiplayerManager.peerIdplayerIdMap[MultiplayerManager.SV_PEER_ID], raceTime);
+            OnPickUpCollectedEmit(car.playerId, Pickable.GetRandomPickUp());
         }
-        else {
-            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyCarFinished", raceTime);
+        else if (GameState.playerId == car.playerId) {
+            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpCollected", car.playerId);
         }
-
+    
     }
 
-    public void PickUpCollect(CarController car) {
-        
+    public void PickUpUse(CarController car) {
+
+        if (Multiplayer.IsServer()) {
+            OnPickUpUsedEmit(car.playerId);
+        }
+        else if (GameState.playerId == car.playerId) {
+            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyPickUpUsed", car.playerId);
+        }
+
     }
 
     public void CheckpointConfirm(int checkpointsAdded) {
@@ -54,6 +61,18 @@ public partial class GameManager : Node {
         }
 
     }
+
+    public void CarFinished(float raceTime) {
+
+        if (Multiplayer.IsServer()) {
+            Rpc("OnCarFinishedEmit", MultiplayerManager.peerIdplayerIdMap[MultiplayerManager.SV_PEER_ID], raceTime);
+        }
+        else {
+            RpcId(MultiplayerManager.SV_PEER_ID, "NotifyCarFinished", raceTime);
+        }
+
+    }
+
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void OnPlayersReadyEmit() {
@@ -74,6 +93,24 @@ public partial class GameManager : Node {
 
         GameState.players[playerId].carTransform = globalTransform;
         GameState.players[playerId].carSteering = steering;     
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyPickUpCollected(int playerId) {
+
+        if (Multiplayer.IsServer()) {
+            RpcId(Multiplayer.GetRemoteSenderId(), "OnPickUpCollectedEmit", playerId, (int)Pickable.GetRandomPickUp());
+        }
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void NotifyPickUpUsed(int playerId) {
+        
+        if (Multiplayer.IsServer()) {
+            RpcId(Multiplayer.GetRemoteSenderId(), "OnPickUpUsedEmit", playerId);
+        }
 
     }
 
@@ -105,6 +142,20 @@ public partial class GameManager : Node {
     private void NotifyPlayerTransform(Transform3D globalTransform, float steering) {
 
         Rpc("UpdateTransforms", MultiplayerManager.peerIdplayerIdMap[Multiplayer.GetRemoteSenderId()], globalTransform, steering);               
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void OnPickUpCollectedEmit(int playerId, Pickable.PickUpType pickUp) {
+
+        MultiplayerManager.instance.EmitSignal(MultiplayerManager.SignalName.OnPickUpCollected, playerId, (int)pickUp);
+
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void OnPickUpUsedEmit(int playerId) {
+
+        MultiplayerManager.instance.EmitSignal(MultiplayerManager.SignalName.OnPickUpUsed, playerId);
 
     }
 

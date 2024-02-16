@@ -12,17 +12,23 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
     [Signal] public delegate void OnPlayerDisconnectedEventHandler(int id, string playerName);
     [Signal] public delegate void OnPlayerConnectErrorEventHandler();
 
+    // Car Selection screen signals
+    [Signal] public delegate void OnSelectedCarsRequestedEventHandler();
+
     // Game lobby signals
     [Signal] public delegate void OnPlayerLoadedEventHandler(int playerId, bool isLocal);
 
     // In-Game signals
     [Signal] public delegate void OnPlayersReadyEventHandler();
     [Signal] public delegate void OnRaceStartedEventHandler();
-    [Signal] public delegate void OnCheckpointConfirmEventHandler(int playedId, int confirmedCheckpoint);
+    [Signal] public delegate void OnPickUpCollectedEventHandler(int playerId, Pickable.PickUpType pickUp);
+    [Signal] public delegate void OnPickUpUsedEventHandler(int playerId);
+    [Signal] public delegate void OnCheckpointConfirmEventHandler(int playerId, int confirmedCheckpoint);
     [Signal] public delegate void OnCarFinishedEventHandler(int playerId, string name, float raceTime);
 
     [Export] private GameManager game = null;
     [Export] private GameLobby gameLobby = null;
+    [Export] private CarSelection carSelection = null;
 
     private const string DEFAULT_IP = "127.0.0.1";
     private const int PORT = 42010;
@@ -204,6 +210,30 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
 
 #endregion
 
+#region MAP_MANAGER
+
+    // @TODO: This doesn't belong in this file.
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void LoadMap(string mapPath) {
+
+        GameStateMachine.instance.LoadScene(mapPath);
+        
+    }
+
+#endregion
+
+#region CAR_SELECTION
+
+    public static void RequestSelectedCars() {
+        instance.carSelection.RequestSelectedCars();
+    }
+
+    public static void SendSelectedCar(string carPath) {
+        instance.carSelection.SendSelectedCar(carPath);
+    }
+
+#endregion
+
 #region GAME_LOBBY
 
     public static void PlayerLoaded() {
@@ -222,16 +252,20 @@ public partial class MultiplayerManager : Singleton<MultiplayerManager> {
         instance.game.Start();
     }
 
+    public static void SendPlayerTransform(Transform3D globalTransform, float steering) {   
+        instance.game.SendPlayerTransform(globalTransform, steering);  
+    }
+
     public static void PickUpCollect(CarController car) {
         instance.game.PickUpCollect(car);
     }
 
-    public static void CheckpointConfirm(int checkpointsAdded) {
-        instance.game.CheckpointConfirm(checkpointsAdded);
+    public static void PickUpUse(CarController car) {
+        instance.game.PickUpUse(car);
     }
 
-    public static void SendPlayerTransform(Transform3D globalTransform, float steering) {   
-        instance.game.SendPlayerTransform(globalTransform, steering);  
+    public static void CheckpointConfirm(int checkpointsAdded) {
+        instance.game.CheckpointConfirm(checkpointsAdded);
     }
 
     public static void CarFinished(float raceTime) {

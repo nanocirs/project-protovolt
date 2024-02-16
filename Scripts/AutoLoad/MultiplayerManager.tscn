@@ -1,16 +1,21 @@
-[gd_scene load_steps=4 format=3 uid="uid://bww4olc72vxdq"]
+[gd_scene load_steps=5 format=3 uid="uid://bww4olc72vxdq"]
 
 [ext_resource type="Script" path="res://Scripts/Multiplayer/MultiplayerManager.cs" id="1_in0iy"]
 [ext_resource type="Script" path="res://Scripts/Multiplayer/GameManager.cs" id="2_drmps"]
 [ext_resource type="Script" path="res://Scripts/Multiplayer/GameLobby.cs" id="3_thumy"]
+[ext_resource type="Script" path="res://Scripts/Multiplayer/CarSelection.cs" id="4_oxorw"]
 
-[node name="MultiplayerManager" type="Node" node_paths=PackedStringArray("game", "gameLobby")]
+[node name="MultiplayerManager" type="Node" node_paths=PackedStringArray("game", "gameLobby", "carSelection")]
 script = ExtResource("1_in0iy")
 game = NodePath("GameManager")
 gameLobby = NodePath("GameLobby")
+carSelection = NodePath("CarSelection")
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("2_drmps")
 
 [node name="GameLobby" type="Node" parent="."]
 script = ExtResource("3_thumy")
+
+[node name="CarSelection" type="Node" parent="."]
+script = ExtResource("4_oxorw")
